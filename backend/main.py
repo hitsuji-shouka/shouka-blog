@@ -35,11 +35,16 @@ def get_post(slug: str) -> PostDetail:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     posts.load()
+    import rag
+    from llm import embed
+    rag.build(embed)
     yield
 
 
 app = FastAPI(title="shoka-blog", lifespan=lifespan)
 app.include_router(api)
+from chat import router as chat_router  # noqa: E402
+app.include_router(chat_router)
 
 # 静态托管：有产物则托管，/api/* 之外回 index.html（SPA fallback）
 if settings.static_dir.is_dir():
