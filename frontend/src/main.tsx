@@ -4,7 +4,7 @@ import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import { Home } from "./pages/Home";
 import { Post } from "./pages/Post";
 import { Category } from "./pages/Category";
-import { AssistantButton } from "./components/AssistantButton";
+import { AssistantPanel } from "./components/AssistantPanel";
 import "./index.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
@@ -19,7 +19,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
           <Route path="*" element={<p className="empty">404</p>} />
         </Routes>
       </div>
-      <AssistantButton />
+      <AssistantPanel />
     </BrowserRouter>
   </React.StrictMode>
 );
