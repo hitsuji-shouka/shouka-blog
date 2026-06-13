@@ -24,12 +24,11 @@ def trace(name: str, **meta):
     if _lf is None:
         yield lambda **_: None
         return
-    span = _lf.start_span(name=name, metadata=meta)
+    t = _lf.trace(name=name, metadata=meta)
     try:
-        yield lambda **kw: span.update(**kw)
+        yield lambda **kw: t.update(**kw)
     except Exception:
-        span.update(level="ERROR")
+        t.update(level="ERROR")
         raise
     finally:
-        span.end()
         _lf.flush()
