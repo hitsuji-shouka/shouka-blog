@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Button, Input, Tag } from "antd";
+import { CloseOutlined, SendOutlined } from "@ant-design/icons";
 import { sendChat, type ChatMsg, type Source } from "../lib/chat";
 
 export function AssistantPanel() {
@@ -27,20 +29,25 @@ export function AssistantPanel() {
     setBusy(false);
   }
 
-  if (!open) return <button className="assistant-fab" aria-label="助理" onClick={() => setOpen(true)}>💬</button>;
+  if (!open) return (
+    <button className="totoro-fab" aria-label="问问 shouka" onClick={() => setOpen(true)}>
+      <img src="/totoro.png" alt="" />
+    </button>
+  );
   return (
     <div className="assistant-panel">
-      <header>问问 shoka<button onClick={() => setOpen(false)} aria-label="关闭">×</button></header>
+      <header><img className="totoro-mini" src="/totoro.png" alt="" />问问 shouka
+        <Button type="text" size="small" icon={<CloseOutlined />} onClick={() => setOpen(false)} aria-label="关闭" /></header>
       <div className="assistant-msgs">
         {msgs.map((m, i) => <div key={i} className={`bubble ${m.role}`}>{m.content || "…"}</div>)}
         {sources.length > 0 && (
-          <div className="sources">来源：{sources.map((s) => <Link key={s.slug} to={`/post/${s.slug}`}>{s.title}</Link>)}</div>
+          <div className="sources">来源：{sources.map((s) => <Tag key={s.slug} color="green"><Link to={`/post/${s.slug}`}>{s.title}</Link></Tag>)}</div>
         )}
       </div>
       <div className="assistant-input">
-        <input value={input} onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()} placeholder="问博主写过什么…" />
-        <button onClick={send} disabled={busy || !input.trim()}>发送</button>
+        <Input value={input} onChange={(e) => setInput(e.target.value)} onPressEnter={send}
+          placeholder="问博主写过什么…" />
+        <Button type="primary" icon={<SendOutlined />} loading={busy} disabled={!input.trim()} onClick={send}>发送</Button>
       </div>
     </div>
   );

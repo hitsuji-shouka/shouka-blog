@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Empty, Skeleton, Space } from "antd";
 import { listPosts } from "../lib/api";
 import type { PostMeta } from "../lib/types";
 import { PostCard } from "../components/PostCard";
-
-const CATS = ["学习", "阅读", "音乐", "理财"];
 
 export function Category() {
   const { name } = useParams();
@@ -15,11 +14,12 @@ export function Category() {
   }, [name]);
   return (
     <>
-      <nav>{CATS.map((c) => <a key={c} href={`/category/${c}`}>{c}</a>)}</nav>
-      <h1>{name}</h1>
-      {!posts ? <p className="empty">加载中…</p>
-        : posts.length === 0 ? <p className="empty">还没有文章</p>
-        : posts.map((p) => <PostCard key={p.slug} post={p} />)}
+      <h1 className="page-title">{name}</h1>
+      {!posts ? <Skeleton active paragraph={{ rows: 3 }} />
+        : posts.length === 0 ? <Empty description="还没有文章" />
+        : <Space direction="vertical" size={16} style={{ width: "100%" }}>
+            {posts.map((p) => <PostCard key={p.slug} post={p} />)}
+          </Space>}
     </>
   );
 }

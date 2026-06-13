@@ -1,18 +1,20 @@
 import { Link } from "react-router-dom";
+import { Card, Tag, Typography } from "antd";
 import type { PostMeta } from "../lib/types";
+import { CAT_COLOR } from "../lib/cat";
 
 export function PostCard({ post }: { post: PostMeta }) {
   return (
-    <article className="post-card">
-      {post.cover && <img className="post-card__cover" src={post.cover} alt="" loading="lazy" />}
-      <h2>
-        <Link to={`/post/${post.slug}`}>{post.title}</Link>
-      </h2>
+    <Card hoverable className="post-card"
+      cover={post.cover ? <img className="post-card__cover" src={post.cover} alt="" loading="lazy" /> : undefined}>
       <div className="post-card__meta">
+        <Tag color={CAT_COLOR[post.category]} bordered={false}>{post.category}</Tag>
         <span>{post.date}</span>
-        <span className="post-card__cat">{post.category}</span>
       </div>
-      {post.summary && <p className="post-card__summary">{post.summary}</p>}
-    </article>
+      <Typography.Title level={4} style={{ margin: "8px 0 4px" }}>
+        <Link to={`/post/${post.slug}`}>{post.title}</Link>
+      </Typography.Title>
+      {post.summary && <Typography.Paragraph type="secondary" style={{ margin: 0 }}>{post.summary}</Typography.Paragraph>}
+    </Card>
   );
 }
