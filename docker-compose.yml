@@ -23,9 +23,16 @@ services:
     depends_on: [langfuse-db]
     environment:
       DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
-      NEXTAUTH_SECRET: changeme
-      SALT: changeme
+      NEXTAUTH_SECRET: mysecretmysecretmysecretmysecre1
+      SALT: saltsaltsaltsaltsaltsaltsaltsal1
       NEXTAUTH_URL: http://localhost:3000
+      # 首启自动建组织/项目/用户与 trace key（生产请改强密码）
+      LANGFUSE_INIT_ORG_ID: shouka
+      LANGFUSE_INIT_PROJECT_ID: blog
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-11111111-1111-1111-1111-111111111111
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-11111111-1111-1111-1111-111111111111
+      LANGFUSE_INIT_USER_EMAIL: a@b.com
+      LANGFUSE_INIT_USER_PASSWORD: password123
 volumes:
   caddy_data:
   langfuse_pg:
