@@ -1,9 +1,13 @@
-# 推特金融博主名单
-handles = [
-  "HenryinvestX",
-  "xiaomustock",
-  "aleabitoreddit",
-  "WiseInvest513",
-  "jason_chen998",
-  "LucyBuilding",
-]
+[finance]
+category = "理财"
+prefix = "finance"
+title = "每日金融观点"
+handles = ["HenryinvestX", "xiaomustock", "aleabitoreddit", "WiseInvest513", "jason_chen998", "LucyBuilding"]
+wechat = []
+
+[ai]
+category = "AI"
+prefix = "ai"
+title = "每日 AI 进展"
+handles = ["sanbuphy", "op7418", "claudeai", "AnthropicAI", "bcherny", "GoogleAI", "karpathy"]
+wechat = ["阿里云开发者", "腾讯云开发者"]

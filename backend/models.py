@@ -7,7 +7,7 @@ from pydantic import BaseModel
 class Category(str, Enum):
     """四个固定分类。"""
 
-    LEARNING = "学习"
+    LEARNING = "AI"
     READING = "阅读"
     MUSIC = "音乐"
     FINANCE = "理财"

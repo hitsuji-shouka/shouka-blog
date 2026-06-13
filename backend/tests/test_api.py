@@ -11,7 +11,7 @@ def loaded(tmp_path):
         "---\ntitle: B\ndate: 2026-06-12\ncategory: 音乐\nsummary: sb\n---\nbody b\n"
     )
     (tmp_path / "a.md").write_text(
-        "---\ntitle: A\ndate: 2026-06-10\ncategory: 学习\n---\nbody a\n"
+        "---\ntitle: A\ndate: 2026-06-10\ncategory: AI\n---\nbody a\n"
     )
     posts.load(tmp_path)
 
@@ -43,4 +43,4 @@ def test_category_filter_and_invalid():
 
 def test_categories():
     counts = {c["category"]: c["count"] for c in client.get("/api/categories").json()}
-    assert counts == {"学习": 1, "阅读": 0, "音乐": 1, "理财": 0}
+    assert counts == {"AI": 1, "阅读": 0, "音乐": 1, "理财": 0}

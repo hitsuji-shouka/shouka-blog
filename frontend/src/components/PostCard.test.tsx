@@ -5,7 +5,7 @@ import { PostCard } from "./PostCard";
 import type { PostMeta } from "../lib/types";
 
 const base: PostMeta = {
-  slug: "a", title: "标题A", date: "2026-06-12", category: "学习",
+  slug: "a", title: "标题A", date: "2026-06-12", category: "AI",
   tags: [], summary: "摘要", cover: null,
 };
 

@@ -17,7 +17,7 @@ def test_cosine_topk_orders_desc():
 
 
 def test_search_threshold(tmp_path):
-    (tmp_path / "a.md").write_text("---\ntitle: A\ndate: 2026-06-12\ncategory: 学习\n---\nhello\n")
+    (tmp_path / "a.md").write_text("---\ntitle: A\ndate: 2026-06-12\ncategory: AI\n---\nhello\n")
     posts.load(tmp_path)
     rag.build(lambda texts: [[1.0, 0.0] for _ in texts])
     assert [c["slug"] for c in rag.search([1.0, 0.0])] == ["a"]   # sim 1.0 过阈

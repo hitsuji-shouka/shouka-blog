@@ -7,16 +7,16 @@ from config import settings  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
-SYSTEM = "你是金融编辑。把多位博主近一日推文按主题归纳成中文每日报告，列要点、标注博主、附原推链接，客观不预测。"
+SYSTEM = "你是{domain}编辑。把多个来源近一日内容按主题归纳成中文每日报告，列要点、标注来源、附原链接，客观不预测，不要加大标题。"
 
 
-def summarize(tweets: list[dict]) -> str:
-    """tweets: [{handle,text,url}] -> markdown；空则空串。"""
-    if not tweets:
+def summarize(items: list[dict], domain: str = "金融") -> str:
+    """items: [{handle,text,url}] -> markdown；空则空串。"""
+    if not items:
         return ""
-    blob = "\n".join(f"@{t['handle']}: {t['text']} ({t['url']})" for t in tweets)
+    blob = "\n".join(f"@{t['handle']}: {t['text']} ({t['url']})" for t in items)
     r = _chat.chat.completions.create(
         model=settings.deepseek_model,
-        messages=[{"role": "system", "content": SYSTEM}, {"role": "user", "content": blob}],
+        messages=[{"role": "system", "content": SYSTEM.format(domain=domain)}, {"role": "user", "content": blob}],
     )
     return r.choices[0].message.content or ""

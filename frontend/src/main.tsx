@@ -24,7 +24,7 @@ function Nav() {
       <Link to="/" className="brand">shouka<span>.blog</span></Link>
       <Menu mode="horizontal" theme="light" selectedKeys={[loc.pathname]} items={items}
         onClick={(e) => nav(e.key)} className="site-menu" />
-      <span className="site-slogan">学习 · 阅读 · 音乐 · 理财 · 融入 agent</span>
+      <span className="site-slogan">AI · 阅读 · 音乐 · 理财 · 融入 agent</span>
     </Header>
   );
 }

@@ -13,7 +13,7 @@ def fake_chat(messages):
 
 
 def setup_index(tmp_path):
-    (tmp_path / "a.md").write_text("---\ntitle: 学习笔记\ndate: 2026-06-12\ncategory: 学习\n---\nrust 很好\n")
+    (tmp_path / "a.md").write_text("---\ntitle: AI笔记\ndate: 2026-06-12\ncategory: AI\n---\nrust 很好\n")
     posts.load(tmp_path)
     rag.build(fake_embed)
 
@@ -25,7 +25,7 @@ def collect(req):
 def test_hit_emits_sources_then_delta(tmp_path):
     setup_index(tmp_path)
     out = collect(ChatReq(messages=[Msg(role="user", content="rust?")]))
-    assert "学习笔记" in out and "你好" in out and "event: done" in out
+    assert "AI笔记" in out and "你好" in out and "event: done" in out
 
 
 def test_no_content_falls_back_no_sources(tmp_path):

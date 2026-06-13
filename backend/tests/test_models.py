@@ -4,7 +4,7 @@ from models import Category, PostDetail, PostMeta
 
 
 def test_post_meta_defaults():
-    m = PostMeta(slug="a", title="A", date=date(2026, 6, 12), category="学习")
+    m = PostMeta(slug="a", title="A", date=date(2026, 6, 12), category="AI")
     assert m.tags == []
     assert m.summary == ""
     assert m.cover is None

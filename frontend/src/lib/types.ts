@@ -1,4 +1,4 @@
-export type Category = "学习" | "阅读" | "音乐" | "理财";
+export type Category = "AI" | "阅读" | "音乐" | "理财";
 
 export interface PostMeta {
   slug: string;
