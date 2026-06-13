@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     embed_model: str = "BAAI/bge-m3"
     top_k: int = 3
     sim_threshold: float = 0.35
+    langfuse_public: str = ""
+    langfuse_secret: str = ""
+    langfuse_host: str = "http://localhost:3000"
 
     model_config = {"env_prefix": "BLOG_", "env_file": ".env", "extra": "ignore"}
 

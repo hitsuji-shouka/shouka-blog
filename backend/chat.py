@@ -7,6 +7,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
 import rag
+from trace import trace
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api")
@@ -35,15 +36,19 @@ def build_messages(history: list[Msg], hits: list[dict]) -> list[dict]:
 
 def stream(req: ChatReq, embed, chat) -> Iterator[str]:
     question = next((m.content for m in reversed(req.messages) if m.role == "user"), "")
-    hits = rag.search(embed([question])[0]) if question else []
-    sources = list({h["slug"]: {"slug": h["slug"], "title": h["title"]} for h in hits}.values())
-    yield _sse("sources", {"sources": sources})
-    try:
-        for delta in chat(build_messages(req.messages, hits)):
-            yield _sse("delta", {"text": delta})
-    except Exception as e:  # noqa: BLE001
-        logger.warning("chat stream error: %s", e)
-        yield _sse("error", {"message": "助理暂时不可用"})
+    with trace("chat", question=question) as rec:
+        hits = rag.search(embed([question])[0]) if question else []
+        sources = list({h["slug"]: {"slug": h["slug"], "title": h["title"]} for h in hits}.values())
+        yield _sse("sources", {"sources": sources})
+        answer = ""
+        try:
+            for delta in chat(build_messages(req.messages, hits)):
+                answer += delta
+                yield _sse("delta", {"text": delta})
+        except Exception as e:  # noqa: BLE001
+            logger.warning("chat stream error: %s", e)
+            yield _sse("error", {"message": "助理暂时不可用"})
+        rec(input=question, output=answer, metadata={"sources": sources})
     yield _sse("done", {})
 
 
