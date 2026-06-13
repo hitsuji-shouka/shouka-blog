@@ -28,3 +28,12 @@ def test_build_empty_no_crash(tmp_path):
     posts.load(tmp_path)
     rag.build(lambda t: [[1.0]])
     assert rag.search([1.0]) == []
+
+
+def test_report_tag_excluded_from_index(tmp_path):
+    (tmp_path / "p.md").write_text("---\ntitle: 原创\ndate: 2026-06-12\ncategory: 理财\ntags: [心得]\n---\nhi\n")
+    (tmp_path / "r.md").write_text("---\ntitle: 报告\ndate: 2026-06-13\ncategory: 理财\ntags: [每日报告]\n---\nnoise\n")
+    posts.load(tmp_path)
+    rag.build(lambda texts: [[1.0, 0.0] for _ in texts])
+    hits = rag.search([1.0, 0.0])
+    assert [h["slug"] for h in hits] == ["p"]  # 报告被排除

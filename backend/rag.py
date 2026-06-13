@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 # 内存索引：每块 {slug,title,text,vector}
 _chunks: list[dict] = []
+REPORT_TAG = "每日报告"  # 含此 tag 的文章不入 RAG
 
 
 def chunk(text: str, size: int = 500) -> list[str]:
@@ -43,6 +44,8 @@ def build(embed: Callable[[list[str]], list[list[float]]]) -> None:
     rows = []
     for meta in posts.list_meta():
         d = posts.get(meta.slug)
+        if REPORT_TAG in d.tags:  # 每日报告为资讯聚合，排除出问答语料
+            continue
         for c in chunk(d.content):
             rows.append({"slug": d.slug, "title": d.title, "text": c})
     if not rows:
