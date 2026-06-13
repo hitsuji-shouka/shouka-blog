@@ -24,7 +24,7 @@ export function Category() {
   let body;
   if (!posts) body = <Skeleton active paragraph={{ rows: 3 }} />;
   else if (posts.length === 0) body = <Empty description="还没有文章" />;
-  else if (name === "理财" || name === "AI") {
+  else if (name === "理财" || name === "科技") {
     const reports = posts.filter((p) => p.tags.includes(REPORT_TAG));
     const originals = posts.filter((p) => !p.tags.includes(REPORT_TAG));
     body = <>

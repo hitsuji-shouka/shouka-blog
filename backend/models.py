@@ -5,12 +5,11 @@ from pydantic import BaseModel
 
 
 class Category(str, Enum):
-    """四个固定分类。"""
+    """三个固定分类。"""
 
-    LEARNING = "AI"
-    READING = "阅读"
-    MUSIC = "音乐"
+    TECH = "科技"
     FINANCE = "理财"
+    ESSAY = "随笔"
 
 
 class PostMeta(BaseModel):

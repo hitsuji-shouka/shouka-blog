@@ -1,8 +1,7 @@
 // 分类 → antd Tag 颜色，主蓝绿调
 export const CAT_COLOR: Record<string, string> = {
-  AI: "blue",
-  阅读: "geekblue",
-  音乐: "purple",
+  科技: "blue",
   理财: "green",
+  随笔: "purple",
 };
-export const CATS = ["AI", "阅读", "音乐", "理财"];
+export const CATS = ["科技", "理财", "随笔"];

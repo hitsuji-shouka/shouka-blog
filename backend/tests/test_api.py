@@ -8,10 +8,10 @@ from main import app
 @pytest.fixture(autouse=True)
 def loaded(tmp_path):
     (tmp_path / "b.md").write_text(
-        "---\ntitle: B\ndate: 2026-06-12\ncategory: 音乐\nsummary: sb\n---\nbody b\n"
+        "---\ntitle: B\ndate: 2026-06-12\ncategory: 随笔\nsummary: sb\n---\nbody b\n"
     )
     (tmp_path / "a.md").write_text(
-        "---\ntitle: A\ndate: 2026-06-10\ncategory: AI\n---\nbody a\n"
+        "---\ntitle: A\ndate: 2026-06-10\ncategory: 科技\n---\nbody a\n"
     )
     posts.load(tmp_path)
 
@@ -37,10 +37,10 @@ def test_missing_returns_404():
 
 
 def test_category_filter_and_invalid():
-    assert [p["slug"] for p in client.get("/api/posts?category=音乐").json()] == ["b"]
+    assert [p["slug"] for p in client.get("/api/posts?category=随笔").json()] == ["b"]
     assert client.get("/api/posts?category=时政").json() == []
 
 
 def test_categories():
     counts = {c["category"]: c["count"] for c in client.get("/api/categories").json()}
-    assert counts == {"AI": 1, "阅读": 0, "音乐": 1, "理财": 0}
+    assert counts == {"科技": 1, "理财": 0, "随笔": 1}

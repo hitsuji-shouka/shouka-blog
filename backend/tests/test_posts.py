@@ -5,7 +5,7 @@ import posts
 GOOD_A = """---
 title: A
 date: 2026-06-10
-category: AI
+category: 科技
 tags: [x, y]
 summary: sa
 ---
@@ -16,7 +16,7 @@ body a
 GOOD_B = """---
 title: B
 date: 2026-06-12
-category: 音乐
+category: 随笔
 summary: sb
 cover: http://c
 ---
@@ -59,8 +59,8 @@ def test_missing_slug_returns_none(content):
 
 
 def test_category_filter(content):
-    assert [m.slug for m in posts.list_meta("音乐")] == ["b"]
-    assert posts.list_meta("AI")[0].slug == "a"
+    assert [m.slug for m in posts.list_meta("随笔")] == ["b"]
+    assert posts.list_meta("科技")[0].slug == "a"
 
 
 def test_invalid_category_empty(content):
@@ -69,4 +69,4 @@ def test_invalid_category_empty(content):
 
 def test_categories_counts(content):
     counts = {c["category"]: c["count"] for c in posts.categories()}
-    assert counts == {"AI": 1, "阅读": 0, "音乐": 1, "理财": 0}
+    assert counts == {"科技": 1, "理财": 0, "随笔": 1}
