@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Empty, Skeleton, Space, Typography } from "antd";
+import { Empty, Skeleton, Space } from "antd";
 import { listPosts } from "../lib/api";
 import type { PostMeta } from "../lib/types";
 import { PostCard } from "../components/PostCard";
@@ -8,7 +8,7 @@ import { PostCard } from "../components/PostCard";
 const REPORT_TAG = "每日报告";
 
 function List({ items }: { items: PostMeta[] }) {
-  return <Space direction="vertical" size={16} style={{ width: "100%" }}>
+  return <Space orientation="vertical" size={16} style={{ width: "100%" }}>
     {items.map((p) => <PostCard key={p.slug} post={p} />)}
   </Space>;
 }
@@ -28,12 +28,12 @@ export function Category() {
     const reports = posts.filter((p) => p.tags.includes(REPORT_TAG));
     const originals = posts.filter((p) => !p.tags.includes(REPORT_TAG));
     body = <>
-      <Typography.Title level={4}>原创</Typography.Title>
+      <div className="section-heading section-heading--small"><p>ORIGINAL SIGNALS</p><h2>原创</h2></div>
       {originals.length ? <List items={originals} /> : <Empty description="还没有原创文章" />}
-      <Typography.Title level={4} style={{ marginTop: 28 }}>每日报告</Typography.Title>
+      <div className="section-heading section-heading--small section-heading--spaced"><p>DAILY BRIEFINGS</p><h2>每日报告</h2></div>
       {reports.length ? <List items={reports} /> : <Empty description="还没有报告" />}
     </>;
   } else body = <List items={posts} />;
 
-  return <><h1 className="page-title">{name}</h1>{body}</>;
+  return <section className="content-band"><div className="page-title-block"><p>CATEGORY ARCHIVE</p><h1>{name}</h1></div>{body}</section>;
 }

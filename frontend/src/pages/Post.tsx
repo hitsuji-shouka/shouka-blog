@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Empty, Skeleton, Space, Tag, Typography } from "antd";
+import { Empty, Skeleton, Space, Tag } from "antd";
 import { getPost } from "../lib/api";
 import type { PostDetail } from "../lib/types";
 import { Markdown } from "../components/Markdown";
@@ -16,15 +16,18 @@ export function Post() {
   if (missing) return <Empty description="404 · 文章不存在" />;
   if (!post) return <Skeleton active paragraph={{ rows: 6 }} />;
   return (
-    <article>
-      <Typography.Title level={2}>{post.title}</Typography.Title>
-      <Space className="post-card__meta" style={{ marginBottom: 12 }}>
-        <Tag color={CAT_COLOR[post.category]} bordered={false}>{post.category}</Tag>
-        <span>{post.date}</span>
-      </Space>
-      <div style={{ marginBottom: 16 }}>
-        {post.tags.map((t) => <Tag key={t} className="tag" onClick={() => nav(`/category/${post.category}`)}>#{t}</Tag>)}
-      </div>
+    <article className="post-detail content-band">
+      <header className="post-hero hud-panel">
+        <p className="hud-kicker">ARCHIVE ENTRY / {post.category}</p>
+        <h1>{post.title}</h1>
+        <Space className="post-card__meta" style={{ marginBottom: 12 }}>
+          <Tag color={CAT_COLOR[post.category]} bordered={false}>{post.category}</Tag>
+          <span>{post.date}</span>
+        </Space>
+        <div className="post-tags">
+          {post.tags.map((t) => <Tag key={t} className="tag" onClick={() => nav(`/category/${post.category}`)}>#{t}</Tag>)}
+        </div>
+      </header>
       <PostAudio src={post.audio} />
       <Markdown content={post.content} />
     </article>

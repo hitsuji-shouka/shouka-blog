@@ -1,8 +1,18 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button, Input, Tag } from "antd";
-import { CloseOutlined, SendOutlined } from "@ant-design/icons";
+import { Send, X } from "lucide-react";
 import { sendChat, type ChatMsg, type Source } from "../lib/chat";
+
+function TarsBars() {
+  return (
+    <span className="tars-bars" aria-hidden>
+      {[0.8, 1, 0.58, 0.9, 0.68].map((height, index) => (
+        <i key={index} style={{ height: `${height * 18}px`, animationDelay: `${index * 0.13}s` }} />
+      ))}
+    </span>
+  );
+}
 
 export function AssistantPanel() {
   const [open, setOpen] = useState(false);
@@ -30,25 +40,29 @@ export function AssistantPanel() {
   }
 
   if (!open) return (
-    <button className="totoro-fab" aria-label="问问 shouka" onClick={() => setOpen(true)}>
-      <img src="/totoro.png" alt="" />
+    <button className="tars-fab" aria-label="问问 shouka" onClick={() => setOpen(true)}>
+      <TarsBars />
+      <span>TARS</span>
     </button>
   );
   return (
-    <div className="assistant-panel">
-      <header><img className="totoro-mini" src="/totoro.png" alt="" />问问 shouka
-        <Button type="text" size="small" icon={<CloseOutlined />} onClick={() => setOpen(false)} aria-label="关闭" /></header>
+    <aside className="assistant-panel hud-panel">
+      <header>
+        <div><TarsBars /><strong>TARS</strong><small>shouka assistant</small></div>
+        <Button type="text" size="small" icon={<X size={16} />} onClick={() => setOpen(false)} aria-label="关闭" />
+      </header>
       <div className="assistant-msgs">
+        {msgs.length === 0 && <div className="bubble assistant">你好，我是 TARS。你可以问我博客里写过什么，或让理财早报为你导航。</div>}
         {msgs.map((m, i) => <div key={i} className={`bubble ${m.role}`}>{m.content || "…"}</div>)}
         {sources.length > 0 && (
-          <div className="sources">来源：{sources.map((s) => <Tag key={s.slug} color="green"><Link to={`/post/${s.slug}`}>{s.title}</Link></Tag>)}</div>
+          <div className="sources">来源：{sources.map((s) => <Tag key={s.slug}><Link to={`/post/${s.slug}`}>{s.title}</Link></Tag>)}</div>
         )}
       </div>
       <div className="assistant-input">
         <Input value={input} onChange={(e) => setInput(e.target.value)} onPressEnter={send}
-          placeholder="问博主写过什么…" />
-        <Button type="primary" icon={<SendOutlined />} loading={busy} disabled={!input.trim()} onClick={send}>发送</Button>
+          placeholder="向 TARS 提问..." />
+        <Button type="primary" icon={<Send size={14} />} loading={busy} disabled={!input.trim()} onClick={send}>发送</Button>
       </div>
-    </div>
+    </aside>
   );
 }

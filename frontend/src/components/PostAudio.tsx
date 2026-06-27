@@ -1,15 +1,14 @@
-import { Card, Typography } from "antd";
-import { SoundOutlined } from "@ant-design/icons";
+import { Headphones } from "lucide-react";
 
 export function PostAudio({ src }: { src?: string | null }) {
   if (!src) return null;
   return (
-    <Card size="small" style={{ marginBottom: 18 }}>
-      <Typography.Text strong>
-        <SoundOutlined style={{ marginRight: 6 }} />
-        早报音频
-      </Typography.Text>
-      <audio controls src={src} style={{ display: "block", width: "100%", marginTop: 10 }} />
-    </Card>
+    <section className="post-audio hud-panel">
+      <div className="post-audio__header">
+        <span><Headphones size={16} /> AUDIO BRIEFING</span>
+        <small>MINIMAX TTS STREAM</small>
+      </div>
+      <audio controls src={src} />
+    </section>
   );
 }

@@ -1,22 +1,21 @@
 import { Link } from "react-router-dom";
-import { Card, Tag, Typography } from "antd";
-import { SoundOutlined } from "@ant-design/icons";
+import { Headphones, Radio } from "lucide-react";
 import type { PostMeta } from "../lib/types";
-import { CAT_COLOR } from "../lib/cat";
 
 export function PostCard({ post }: { post: PostMeta }) {
   return (
-    <Card hoverable className="post-card"
-      cover={post.cover ? <img className="post-card__cover" src={post.cover} alt="" loading="lazy" /> : undefined}>
+    <article className="post-card hud-panel">
+      {post.cover && <img className="post-card__cover" src={post.cover} alt="" loading="lazy" />}
       <div className="post-card__meta">
-        <Tag color={CAT_COLOR[post.category]} bordered={false}>{post.category}</Tag>
-        {post.audio && <Tag icon={<SoundOutlined />} color="green" bordered={false}>可听</Tag>}
-        <span>{post.date}</span>
+        <span className="hud-chip"><Radio size={13} />{post.category}</span>
+        {post.audio && <span className="hud-chip hud-chip--audio"><Headphones size={13} />可听</span>}
+        <time>{post.date}</time>
       </div>
-      <Typography.Title level={4} style={{ margin: "8px 0 4px" }}>
+      <h3>
         <Link to={`/post/${post.slug}`}>{post.title}</Link>
-      </Typography.Title>
-      {post.summary && <Typography.Paragraph type="secondary" style={{ margin: 0 }}>{post.summary}</Typography.Paragraph>}
-    </Card>
+      </h3>
+      {post.summary && <p>{post.summary}</p>}
+      <div className="post-card__line" aria-hidden />
+    </article>
   );
 }
