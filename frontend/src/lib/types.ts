@@ -8,6 +8,8 @@ export interface PostMeta {
   tags: string[];
   summary: string;
   cover: string | null;
+  audio: string | null;
+  sources: string[];
 }
 
 export interface PostDetail extends PostMeta {

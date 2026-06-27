@@ -8,7 +8,8 @@ from main import app
 @pytest.fixture(autouse=True)
 def loaded(tmp_path):
     (tmp_path / "b.md").write_text(
-        "---\ntitle: B\ndate: 2026-06-12\ncategory: 随笔\nsummary: sb\n---\nbody b\n"
+        "---\ntitle: B\ndate: 2026-06-12\ncategory: 随笔\nsummary: sb\n"
+        "audio: /audio/b.mp3\nsources: [CNBC, Reuters]\n---\nbody b\n"
     )
     (tmp_path / "a.md").write_text(
         "---\ntitle: A\ndate: 2026-06-10\ncategory: 科技\n---\nbody a\n"
@@ -30,6 +31,12 @@ def test_list_desc_no_content():
 def test_detail_has_content():
     r = client.get("/api/posts/a")
     assert r.status_code == 200 and "body a" in r.json()["content"]
+
+
+def test_audio_metadata_is_returned():
+    data = client.get("/api/posts/b").json()
+    assert data["audio"] == "/audio/b.mp3"
+    assert data["sources"] == ["CNBC", "Reuters"]
 
 
 def test_missing_returns_404():

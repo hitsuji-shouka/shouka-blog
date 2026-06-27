@@ -22,6 +22,8 @@ class PostMeta(BaseModel):
     tags: list[str] = []
     summary: str = ""
     cover: str | None = None
+    audio: str | None = None
+    sources: list[str] = []
 
 
 class PostDetail(PostMeta):

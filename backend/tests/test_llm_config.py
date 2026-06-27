@@ -1,0 +1,29 @@
+from types import SimpleNamespace
+
+from llm import resolve_chat_config
+
+
+def test_minimax_key_takes_chat_precedence():
+    cfg = SimpleNamespace(
+        minimax_api_key="mx",
+        minimax_chat_base="https://mini.example/v1",
+        minimax_chat_model="MiniMax-Test",
+        deepseek_key="ds",
+        deepseek_base="https://deep.example",
+        deepseek_model="deep-test",
+    )
+
+    assert resolve_chat_config(cfg) == ("mx", "https://mini.example/v1", "MiniMax-Test")
+
+
+def test_deepseek_is_fallback_when_minimax_missing():
+    cfg = SimpleNamespace(
+        minimax_api_key="",
+        minimax_chat_base="https://mini.example/v1",
+        minimax_chat_model="MiniMax-Test",
+        deepseek_key="ds",
+        deepseek_base="https://deep.example",
+        deepseek_model="deep-test",
+    )
+
+    assert resolve_chat_config(cfg) == ("ds", "https://deep.example", "deep-test")

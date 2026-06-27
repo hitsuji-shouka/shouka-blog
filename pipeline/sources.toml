@@ -1,0 +1,25 @@
+[finance]
+
+[[finance.sources]]
+name = "Federal Reserve"
+url = "https://www.federalreserve.gov/feeds/press_all.xml"
+kind = "rss"
+market = "global"
+weight = 3
+language = "en"
+
+[[finance.sources]]
+name = "SEC Press Releases"
+url = "https://www.sec.gov/news/pressreleases.rss"
+kind = "rss"
+market = "global"
+weight = 2
+language = "en"
+
+[[finance.sources]]
+name = "MarketWatch Top Stories"
+url = "https://feeds.content.dowjones.io/public/rss/mw_topstories"
+kind = "rss"
+market = "global"
+weight = 2
+language = "en"

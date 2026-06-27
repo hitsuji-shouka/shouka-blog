@@ -26,6 +26,8 @@ def _parse(path: Path) -> PostDetail | None:
             tags=fm.get("tags") or [],
             summary=fm.get("summary") or "",
             cover=fm.get("cover"),
+            audio=fm.get("audio"),
+            sources=fm.get("sources") or [],
             content=fm.content,
         )
     except (ValidationError, KeyError, ValueError) as e:
