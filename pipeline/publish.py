@@ -18,7 +18,7 @@ def publish(
     if not existing:
         return False
     for path in existing:
-        runner(["git", "add", str(path)], check=True)
+        runner(["git", "add", "-f", str(path)], check=True)
     runner(["git", "commit", "-m", message], check=True)
     if push:
         runner(["git", "push"], check=True)

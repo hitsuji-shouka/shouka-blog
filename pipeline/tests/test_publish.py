@@ -22,7 +22,7 @@ def test_publish_adds_commits_and_pushes_existing_paths(tmp_path):
     assert publish([a, missing], "daily", push=True, runner=fake_runner) is True
 
     assert calls == [
-        (["git", "add", str(a)], True),
+        (["git", "add", "-f", str(a)], True),
         (["git", "commit", "-m", "daily"], True),
         (["git", "push"], True),
     ]
@@ -35,4 +35,4 @@ def test_publish_can_skip_push(tmp_path):
 
     publish([a], "daily", push=False, runner=lambda cmd, check: calls.append(cmd))
 
-    assert calls == [["git", "add", str(a)], ["git", "commit", "-m", "daily"]]
+    assert calls == [["git", "add", "-f", str(a)], ["git", "commit", "-m", "daily"]]
