@@ -255,3 +255,31 @@ Expected: all pass.
 Run: `git diff --stat` and inspect changed files.
 
 Expected: changes are limited to the planned files.
+
+## Task 9: Scheduled Local Publishing Entrypoint
+
+**Files:**
+- Create: `pipeline/daily_finance.py`
+- Create: `pipeline/tests/test_daily_finance.py`
+- Modify: `pipeline/.gitignore`
+- Create: `docs/finance-morning-briefing-runbook.md`
+
+- [x] **Step 1: Write failing tests**
+
+Add tests for the scheduled wrapper: default command includes news mode, audio and publish; logs are written; lock files prevent concurrent runs; audio/publish can be disabled for dry runs.
+
+- [x] **Step 2: Run focused test to verify RED**
+
+Run: `PYTHONPATH=/Users/sxy/develop/shouka-blog/.worktrees/heavy-space-theme/pipeline uv run python -m pytest ../pipeline/tests/test_daily_finance.py -q` from `backend/`.
+
+Observed: failed because `daily_finance` did not exist.
+
+- [x] **Step 3: Implement scheduled wrapper and runbook**
+
+Add `python -m pipeline.daily_finance` as the OpenClaw/cron-facing entrypoint. It writes dated logs, uses a dated lock file, delegates to `pipeline.run finance --mode news`, and defaults to audio plus publish.
+
+- [x] **Step 4: Run focused test to verify GREEN**
+
+Run: `PYTHONPATH=/Users/sxy/develop/shouka-blog/.worktrees/heavy-space-theme/pipeline uv run python -m pytest ../pipeline/tests/test_daily_finance.py -q`.
+
+Observed: 3 passed.
