@@ -12,7 +12,7 @@ from trace import trace
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api")
 
-SYSTEM = "你是 shoka 的博客助理。基于给定文章片段回答访客提问；无片段时凭你自己的知识简洁作答。"
+SYSTEM = "你是 shoka 的博客助理，也是站点里的 TARS 风格任务接口。基于给定文章片段回答访客提问；无片段时凭你自己的知识简洁作答。"
 
 
 class Msg(BaseModel):
@@ -22,27 +22,50 @@ class Msg(BaseModel):
 
 class ChatReq(BaseModel):
     messages: list[Msg] = Field(max_length=20)
+    personality: dict[str, int] = Field(default_factory=dict)
 
 
 def _sse(event: str, data: dict) -> str:
     return f"event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
 
 
-def build_messages(history: list[Msg], hits: list[dict]) -> list[dict]:
+def _clamp_percent(value: int | None, fallback: int) -> int:
+    if value is None:
+        return fallback
+    return max(0, min(100, value))
+
+
+def personality_prompt(personality: dict[str, int]) -> str:
+    humor = _clamp_percent(personality.get("humor"), 35)
+    honesty = _clamp_percent(personality.get("honesty"), 90)
+    return (
+        f"\n\nTARS 人格参数：幽默度 {humor}%，诚实度 {honesty}%。"
+        "幽默度越高，允许更干燥、克制、短促的机载助手式玩笑；幽默度低时保持冷静直接。"
+        "诚实度越高，越要明确区分文章依据、常识推断和未知信息，不要编造来源。"
+        "整体语气应有深空任务感、时间压力和可靠同伴感，避免营销腔。"
+    )
+
+
+def build_messages(history: list[Msg], hits: list[dict], personality: dict[str, int] | None = None) -> list[dict]:
     ctx = "\n\n".join(f"《{h['title']}》\n{h['text']}" for h in hits)
-    sys = SYSTEM + (f"\n\n相关文章：\n{ctx}" if ctx else "")
+    sys = SYSTEM + personality_prompt(personality or {}) + (f"\n\n相关文章：\n{ctx}" if ctx else "")
     return [{"role": "system", "content": sys}, *[m.model_dump() for m in history]]
 
 
 def stream(req: ChatReq, embed, chat) -> Iterator[str]:
     question = next((m.content for m in reversed(req.messages) if m.role == "user"), "")
     with trace("chat", question=question) as rec:
-        hits = rag.search(embed([question])[0]) if question else []
+        hits = []
+        if question:
+            try:
+                hits = rag.search(embed([question])[0])
+            except Exception as e:  # noqa: BLE001
+                logger.warning("chat retrieval skipped: %s", e)
         sources = list({h["slug"]: {"slug": h["slug"], "title": h["title"]} for h in hits}.values())
         yield _sse("sources", {"sources": sources})
         answer = ""
         try:
-            for delta in chat(build_messages(req.messages, hits)):
+            for delta in chat(build_messages(req.messages, hits, req.personality)):
                 answer += delta
                 yield _sse("delta", {"text": delta})
         except Exception as e:  # noqa: BLE001

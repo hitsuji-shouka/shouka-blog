@@ -10,13 +10,16 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@ant-design/icons": "^6.2.5",
-    "antd": "^6.4.4",
+    "@react-three/drei": "^9.122.0",
+    "@react-three/fiber": "^8.18.0",
+    "gsap": "^3.15.0",
+    "lucide-react": "^0.400.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.26.0",
     "remark-directive": "^3.0.0",
+    "three": "^0.160.1",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {

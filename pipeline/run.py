@@ -8,12 +8,20 @@ from dataclasses import asdict
 from datetime import date
 from pathlib import Path
 
-import report
-from fetch import fetch_handle
-from minimax_tts import synthesize_to_file
-from news import dedupe_items, fetch_sources, filter_recent, load_openclaw_items, load_sources
-from publish import publish
-from summarize import summarize, summarize_news
+try:
+    from . import report
+    from .fetch import fetch_handle
+    from .minimax_tts import synthesize_to_file
+    from .news import dedupe_items, fetch_sources, filter_recent, load_openclaw_items, load_sources
+    from .publish import publish
+    from .summarize import summarize, summarize_news
+except ImportError:
+    import report
+    from fetch import fetch_handle
+    from minimax_tts import synthesize_to_file
+    from news import dedupe_items, fetch_sources, filter_recent, load_openclaw_items, load_sources
+    from publish import publish
+    from summarize import summarize, summarize_news
 
 from config import settings  # noqa: E402
 

@@ -1,5 +1,6 @@
 from types import SimpleNamespace
 
+from config import Settings
 from llm import resolve_chat_config
 
 
@@ -27,3 +28,10 @@ def test_deepseek_is_fallback_when_minimax_missing():
     )
 
     assert resolve_chat_config(cfg) == ("ds", "https://deep.example", "deep-test")
+
+
+def test_bailian_embedding_is_default_provider():
+    cfg = Settings()
+
+    assert cfg.embed_base == "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    assert cfg.embed_model == "text-embedding-v4"

@@ -1,5 +1,6 @@
 export interface ChatMsg { role: "user" | "assistant"; content: string; }
 export interface Source { slug: string; title: string; }
+export interface ChatPersonality { humor: number; honesty: number; }
 
 export interface ChatHandlers {
   onSources: (s: Source[]) => void;
@@ -23,11 +24,11 @@ export function parseSSE(buf: string, h: ChatHandlers): string {
   return rest;
 }
 
-export async function sendChat(messages: ChatMsg[], h: ChatHandlers): Promise<void> {
+export async function sendChat(messages: ChatMsg[], h: ChatHandlers, personality?: ChatPersonality): Promise<void> {
   const r = await fetch("/api/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify(personality ? { messages, personality } : { messages }),
   });
   if (!r.ok || !r.body) return h.onError("助理暂时不可用");
   const reader = r.body.getReader();

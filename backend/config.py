@@ -20,8 +20,8 @@ class Settings(BaseSettings):
     minimax_tts_model: str = "speech-02-turbo"
     minimax_tts_voice: str = "male-qn-qingse"
     embed_key: str = ""
-    embed_base: str = "https://api.siliconflow.cn/v1"
-    embed_model: str = "BAAI/bge-m3"
+    embed_base: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
+    embed_model: str = "text-embedding-v4"
     top_k: int = 3
     sim_threshold: float = 0.35
     langfuse_public: str = ""

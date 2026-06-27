@@ -40,8 +40,29 @@ def test_build_messages_injects_context():
     assert "ctx" in msgs[0]["content"] and msgs[1]["content"] == "q"
 
 
+def test_build_messages_injects_tars_personality():
+    req = ChatReq(messages=[Msg(role="user", content="q")], personality={"humor": 72, "honesty": 94})
+    msgs = build_messages(req.messages, [], req.personality)
+    assert "TARS" in msgs[0]["content"]
+    assert "幽默度 72%" in msgs[0]["content"]
+    assert "诚实度 94%" in msgs[0]["content"]
+
+
 def test_error_emits_error_event(tmp_path):
     setup_index(tmp_path)
     def boom(_): raise RuntimeError("down")
     out = "".join(stream(ChatReq(messages=[Msg(role="user", content="q")]), fake_embed, boom))
     assert "助理暂时不可用" in out and "event: done" in out
+
+
+def test_embed_error_falls_back_to_chat_without_sources(tmp_path):
+    posts.load(tmp_path)
+    rag.build(fake_embed)
+
+    def embed_down(_):
+        raise RuntimeError("embedding auth failed")
+
+    out = "".join(stream(ChatReq(messages=[Msg(role="user", content="q")]), embed_down, fake_chat))
+    assert '"sources": []' in out
+    assert "你好" in out
+    assert "event: done" in out

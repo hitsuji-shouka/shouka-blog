@@ -1,39 +1,56 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Empty, Skeleton, Space, Typography } from "antd";
 import { listPosts } from "../lib/api";
 import type { PostMeta } from "../lib/types";
 import { PostCard } from "../components/PostCard";
+import { ArticleGalaxy } from "../components/ArticleGalaxy";
 
 const REPORT_TAG = "每日报告";
 
 function List({ items }: { items: PostMeta[] }) {
-  return <Space direction="vertical" size={16} style={{ width: "100%" }}>
+  return <div className="post-stack">
     {items.map((p) => <PostCard key={p.slug} post={p} />)}
-  </Space>;
+  </div>;
 }
 
 export function Category() {
   const { name } = useParams();
   const [posts, setPosts] = useState<PostMeta[] | null>(null);
+  const [mode, setMode] = useState<"galaxy" | "list">("galaxy");
   useEffect(() => {
     setPosts(null);
     listPosts(name).then(setPosts).catch(() => setPosts([]));
   }, [name]);
 
   let body;
-  if (!posts) body = <Skeleton active paragraph={{ rows: 3 }} />;
-  else if (posts.length === 0) body = <Empty description="还没有文章" />;
-  else if (name === "理财" || name === "科技") {
+  if (!posts) body = <div className="loading-signal">正在校准信号...</div>;
+  else if (posts.length === 0) body = <div className="empty">还没有文章</div>;
+  else if (mode === "galaxy") {
+    body = <ArticleGalaxy posts={posts} focusCategory={name} variant="archive" />;
+  } else if (name === "理财" || name === "科技") {
     const reports = posts.filter((p) => p.tags.includes(REPORT_TAG));
     const originals = posts.filter((p) => !p.tags.includes(REPORT_TAG));
     body = <>
-      <Typography.Title level={4}>原创</Typography.Title>
-      {originals.length ? <List items={originals} /> : <Empty description="还没有原创文章" />}
-      <Typography.Title level={4} style={{ marginTop: 28 }}>每日报告</Typography.Title>
-      {reports.length ? <List items={reports} /> : <Empty description="还没有报告" />}
+      <div className="section-heading section-heading--small"><p>ORIGINAL SIGNALS</p><h2>原创</h2></div>
+      {originals.length ? <List items={originals} /> : <div className="empty">还没有原创文章</div>}
+      <div className="section-heading section-heading--small section-heading--spaced"><p>DAILY BRIEFINGS</p><h2>每日报告</h2></div>
+      {reports.length ? <List items={reports} /> : <div className="empty">还没有报告</div>}
     </>;
   } else body = <List items={posts} />;
 
-  return <><h1 className="page-title">{name}</h1>{body}</>;
+  return (
+    <section className="content-band content-band--archive">
+      <div className="page-title-block">
+        <p>CATEGORY ARCHIVE</p>
+        <h1>{name}</h1>
+        {posts && posts.length > 0 && (
+          <div className="view-toggle" aria-label="视图切换">
+            <button className={mode === "galaxy" ? "is-active" : ""} onClick={() => setMode("galaxy")}>星图模式</button>
+            <button className={mode === "list" ? "is-active" : ""} onClick={() => setMode("list")}>列表模式</button>
+          </div>
+        )}
+      </div>
+      {body}
+    </section>
+  );
 }

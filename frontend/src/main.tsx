@@ -1,54 +1,92 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { ConfigProvider, Layout, Menu, theme } from "antd";
 import { Home } from "./pages/Home";
 import { Post } from "./pages/Post";
 import { Category } from "./pages/Category";
 import { AssistantPanel } from "./components/AssistantPanel";
 import { Background } from "./components/Background";
+import { WarpCanvas, shouldPlayWarp } from "./components/WarpCanvas";
+import { ScrollProgress } from "./components/ScrollProgress";
 import { CATS } from "./lib/cat";
+import { shouldReduceMotion } from "./lib/motion";
 import "./index.css";
 
-const { Header, Content, Footer } = Layout;
-
-function Nav() {
+function HudNav() {
   const nav = useNavigate();
   const loc = useLocation();
-  const items = [
-    { key: "/", label: "首页" },
-    ...CATS.map((c) => ({ key: `/category/${c}`, label: c })),
-  ];
+  const items = [{ key: "/", label: "首页", code: "HOME" }, ...CATS.map((c) => ({
+    key: `/category/${c}`, label: c, code: c === "科技" ? "TECH" : c === "理财" ? "FIN" : "LOG",
+  }))];
   return (
-    <Header className="site-header">
+    <header className="hud-nav">
       <Link to="/" className="brand">shouka<span>.blog</span></Link>
-      <Menu mode="horizontal" theme="light" selectedKeys={[loc.pathname]} items={items}
-        onClick={(e) => nav(e.key)} className="site-menu" />
-      <span className="site-slogan">科技 · 理财 · 随笔 · 融入 agent</span>
-    </Header>
+      <nav className="hud-menu" aria-label="主导航">
+        {items.map((item) => (
+          <button
+            key={item.key}
+            className={loc.pathname === item.key ? "is-active" : ""}
+            onClick={() => nav(item.key)}
+          >
+            <small>{item.code}</small>
+            {item.label}
+          </button>
+        ))}
+      </nav>
+      <span className="hud-status">AGENT ONLINE</span>
+    </header>
+  );
+}
+
+function WarpRouter() {
+  const location = useLocation();
+  const [displayLocation, setDisplayLocation] = useState(location);
+  const [warp, setWarp] = useState(false);
+  const [reduceMotion] = useState(() => shouldReduceMotion());
+
+  useEffect(() => {
+    if (shouldPlayWarp(reduceMotion, displayLocation.pathname, location.pathname)) {
+      setWarp(true);
+    } else {
+      setDisplayLocation(location);
+      window.scrollTo(0, 0);
+    }
+  }, [displayLocation.pathname, location, reduceMotion]);
+
+  const handleComplete = useCallback(() => {
+    setDisplayLocation(location);
+    requestAnimationFrame(() => {
+      setWarp(false);
+      window.scrollTo(0, 0);
+    });
+  }, [location]);
+
+  return (
+    <>
+      <WarpCanvas trigger={warp} onComplete={handleComplete} />
+      <div className={warp ? "route-shell is-warping" : "route-shell"}>
+        <HudNav />
+        <main className="site-content">
+          <Routes location={displayLocation}>
+            <Route path="/" element={<Home />} />
+            <Route path="/post/:slug" element={<Post />} />
+            <Route path="/category/:name" element={<Category />} />
+            <Route path="*" element={<p className="empty">404</p>} />
+          </Routes>
+        </main>
+        <footer className="site-footer">shouka · knowledge station · agent enabled</footer>
+      </div>
+      <ScrollProgress />
+    </>
   );
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ConfigProvider theme={{ algorithm: theme.defaultAlgorithm,
-      token: { colorPrimary: "#1677ff", colorSuccess: "#52c41a", borderRadius: 10, fontSize: 15 } }}>
-      <BrowserRouter>
-        <Background />
-        <Layout className="site">
-          <Nav />
-          <Content className="site-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/post/:slug" element={<Post />} />
-              <Route path="/category/:name" element={<Category />} />
-              <Route path="*" element={<p className="empty">404</p>} />
-            </Routes>
-          </Content>
-          <Footer className="site-footer">shouka · 融入 agent 的个人博客</Footer>
-        </Layout>
-        <AssistantPanel />
-      </BrowserRouter>
-    </ConfigProvider>
+    <BrowserRouter>
+      <Background />
+      <WarpRouter />
+      <AssistantPanel />
+    </BrowserRouter>
   </React.StrictMode>
 );
