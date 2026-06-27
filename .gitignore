@@ -12,4 +12,8 @@ dist/
 .idea/
 # worktrees
 .worktrees/
+.env
 backend/.env
+pipeline/.env
+pipeline/logs/
+frontend/public/audio/
