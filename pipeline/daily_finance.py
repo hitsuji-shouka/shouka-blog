@@ -52,6 +52,7 @@ def run_daily_finance(
             lock.write(f"pid={os.getpid()}\nstarted={_now()}\n")
 
         cmd = _build_command(
+            python=resolve_python(root),
             with_audio=with_audio,
             publish=publish,
             force=force,
@@ -74,6 +75,7 @@ def run_daily_finance(
 
 def _build_command(
     *,
+    python: str = PYTHON,
     with_audio: bool,
     publish: bool,
     force: bool,
@@ -81,7 +83,7 @@ def _build_command(
     min_items: int | None,
     hours: int | None,
 ) -> list[str]:
-    cmd = [PYTHON, "-m", "pipeline.run", "finance", "--mode", "news"]
+    cmd = [python, "-m", "pipeline.run", "finance", "--mode", "news"]
     if input_path:
         cmd.extend(["--input", str(input_path)])
     if with_audio:
@@ -95,6 +97,13 @@ def _build_command(
     if hours is not None:
         cmd.extend(["--hours", str(hours)])
     return cmd
+
+
+def resolve_python(root: Path = ROOT) -> str:
+    project_python = root / "backend" / ".venv" / "bin" / "python"
+    if project_python.exists():
+        return str(project_python)
+    return PYTHON
 
 
 def _now() -> str:

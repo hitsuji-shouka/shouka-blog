@@ -81,6 +81,14 @@ def test_daily_finance_can_disable_audio_and_publish(tmp_path):
     assert calls == [[daily_finance.PYTHON, "-m", "pipeline.run", "finance", "--mode", "news"]]
 
 
+def test_daily_finance_prefers_project_venv_python(tmp_path):
+    venv_python = tmp_path / "backend" / ".venv" / "bin" / "python"
+    venv_python.parent.mkdir(parents=True)
+    venv_python.write_text("", encoding="utf-8")
+
+    assert daily_finance.resolve_python(tmp_path) == str(venv_python)
+
+
 def test_pipeline_run_can_start_as_module():
     root = Path(__file__).resolve().parents[2]
     env = {key: value for key, value in os.environ.items() if key != "PYTHONPATH"}
