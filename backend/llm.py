@@ -19,7 +19,7 @@ _embed = OpenAI(api_key=settings.embed_key or "noop", base_url=settings.embed_ba
 
 
 def embed(texts: list[str]) -> list[list[float]]:
-    """硅基流动 bge-m3 批量 embedding。"""
+    """OpenAI-compatible batch embeddings for the configured provider."""
     r = _embed.embeddings.create(model=settings.embed_model, input=texts)
     return [d.embedding for d in r.data]
 
