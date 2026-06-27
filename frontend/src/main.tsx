@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { ConfigProvider, theme } from "antd";
 import { Home } from "./pages/Home";
 import { Post } from "./pages/Post";
 import { Category } from "./pages/Category";
@@ -84,15 +83,10 @@ function WarpRouter() {
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <ConfigProvider theme={{
-      algorithm: theme.darkAlgorithm,
-      token: { colorPrimary: "#00d4ff", colorSuccess: "#f5a623", borderRadius: 4, fontSize: 15 },
-    }}>
-      <BrowserRouter>
-        <Background />
-        <WarpRouter />
-        <AssistantPanel />
-      </BrowserRouter>
-    </ConfigProvider>
+    <BrowserRouter>
+      <Background />
+      <WarpRouter />
+      <AssistantPanel />
+    </BrowserRouter>
   </React.StrictMode>
 );

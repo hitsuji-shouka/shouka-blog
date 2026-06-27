@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { parseSSE, type Source } from "./chat";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { parseSSE, sendChat, type Source } from "./chat";
 
 function collect() {
   const out = { sources: [] as Source[], text: "", err: "" };
@@ -26,5 +26,32 @@ describe("parseSSE", () => {
     const { out, h } = collect();
     parseSSE('event: error\ndata: {"message":"助理暂时不可用"}\n\n', h);
     expect(out.err).toBe("助理暂时不可用");
+  });
+});
+
+describe("sendChat", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("sends TARS personality controls with the chat request", async () => {
+    const body = new ReadableStream({
+      start(controller) {
+        controller.close();
+      },
+    });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      body,
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const { h } = collect();
+
+    await sendChat([{ role: "user", content: "hi" }], h, { humor: 72, honesty: 94 });
+
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toEqual({
+      messages: [{ role: "user", content: "hi" }],
+      personality: { humor: 72, honesty: 94 },
+    });
   });
 });

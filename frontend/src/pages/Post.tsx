@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Empty, Skeleton, Space, Tag } from "antd";
 import { getPost } from "../lib/api";
 import type { PostDetail } from "../lib/types";
 import { Markdown } from "../components/Markdown";
-import { CAT_COLOR } from "../lib/cat";
 import { PostAudio } from "../components/PostAudio";
 
 export function Post() {
@@ -13,19 +11,19 @@ export function Post() {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [missing, setMissing] = useState(false);
   useEffect(() => { getPost(slug!).then(setPost).catch(() => setMissing(true)); }, [slug]);
-  if (missing) return <Empty description="404 · 文章不存在" />;
-  if (!post) return <Skeleton active paragraph={{ rows: 6 }} />;
+  if (missing) return <div className="empty">404 · 文章不存在</div>;
+  if (!post) return <div className="loading-signal">正在解码归档...</div>;
   return (
     <article className="post-detail content-band">
       <header className="post-hero hud-panel">
         <p className="hud-kicker">ARCHIVE ENTRY / {post.category}</p>
         <h1>{post.title}</h1>
-        <Space className="post-card__meta" style={{ marginBottom: 12 }}>
-          <Tag color={CAT_COLOR[post.category]} bordered={false}>{post.category}</Tag>
+        <div className="post-card__meta post-card__meta--spaced">
+          <span className="hud-chip">{post.category}</span>
           <span>{post.date}</span>
-        </Space>
+        </div>
         <div className="post-tags">
-          {post.tags.map((t) => <Tag key={t} className="tag" onClick={() => nav(`/category/${post.category}`)}>#{t}</Tag>)}
+          {post.tags.map((t) => <button key={t} className="tag" onClick={() => nav(`/category/${post.category}`)}>#{t}</button>)}
         </div>
       </header>
       <PostAudio src={post.audio} />

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Empty, Skeleton, Space } from "antd";
 import { listPosts } from "../lib/api";
 import type { PostMeta } from "../lib/types";
 import { PostCard } from "../components/PostCard";
@@ -17,8 +16,13 @@ export function Home() {
           <p className="hud-kicker">MISSION LOG / SHOUKA KNOWLEDGE STATION</p>
           <h1>shouka.blog</h1>
           <p className="hero-copy">
-            记录科技、理财与随笔，把每日早报、长文思考和 agent 能力接入同一个深空控制台。
+            这里不是信息流，是一艘慢速穿过噪声的飞船。科技、理财早报与私人随笔被整理成可追踪的信号，留给仍然愿意思考的人。
           </p>
+          <div className="mission-telemetry" aria-label="任务遥测">
+            <span><b>MISSION CLOCK</b> 06:45 CST</span>
+            <span><b>SIGNAL DELAY</b> HUMAN REVIEW</span>
+            <span><b>GRAVITY WELL</b> MARKETS / AGENTS</span>
+          </div>
           <GalaxyNav />
         </div>
         <div className="scroll-cue" aria-hidden>
@@ -32,12 +36,12 @@ export function Home() {
           <p>RECENT TRANSMISSIONS</p>
           <h2>最新文章</h2>
         </div>
-        {!posts ? <Skeleton active paragraph={{ rows: 4 }} /> : posts.length === 0 ? (
-          <Empty description="还没有文章" />
+        {!posts ? <div className="loading-signal">正在校准信号...</div> : posts.length === 0 ? (
+          <div className="empty">还没有文章</div>
         ) : (
-          <Space orientation="vertical" size={16} style={{ width: "100%" }}>
+          <div className="post-stack">
             {posts.map((p) => <PostCard key={p.slug} post={p} />)}
-          </Space>
+          </div>
         )}
       </section>
     </>
