@@ -3,7 +3,7 @@ import { listPosts } from "../lib/api";
 import type { PostMeta } from "../lib/types";
 import { PostCard } from "../components/PostCard";
 import { BlackHoleScene } from "../components/BlackHoleScene";
-import { GalaxyNav } from "../components/GalaxyNav";
+import { ArticleGalaxy } from "../components/ArticleGalaxy";
 
 export function Home() {
   const [posts, setPosts] = useState<PostMeta[] | null>(null);
@@ -23,7 +23,9 @@ export function Home() {
             <span><b>SIGNAL DELAY</b> HUMAN REVIEW</span>
             <span><b>GRAVITY WELL</b> MARKETS / AGENTS</span>
           </div>
-          <GalaxyNav />
+        </div>
+        <div className="hero-galaxy">
+          {posts ? <ArticleGalaxy posts={posts} variant="home" /> : <div className="loading-signal">正在校准星图...</div>}
         </div>
         <div className="scroll-cue" aria-hidden>
           <span>SCROLL</span>
