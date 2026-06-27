@@ -53,3 +53,16 @@ def test_error_emits_error_event(tmp_path):
     def boom(_): raise RuntimeError("down")
     out = "".join(stream(ChatReq(messages=[Msg(role="user", content="q")]), fake_embed, boom))
     assert "助理暂时不可用" in out and "event: done" in out
+
+
+def test_embed_error_falls_back_to_chat_without_sources(tmp_path):
+    posts.load(tmp_path)
+    rag.build(fake_embed)
+
+    def embed_down(_):
+        raise RuntimeError("embedding auth failed")
+
+    out = "".join(stream(ChatReq(messages=[Msg(role="user", content="q")]), embed_down, fake_chat))
+    assert '"sources": []' in out
+    assert "你好" in out
+    assert "event: done" in out

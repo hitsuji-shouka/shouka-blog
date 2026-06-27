@@ -55,7 +55,12 @@ def build_messages(history: list[Msg], hits: list[dict], personality: dict[str, 
 def stream(req: ChatReq, embed, chat) -> Iterator[str]:
     question = next((m.content for m in reversed(req.messages) if m.role == "user"), "")
     with trace("chat", question=question) as rec:
-        hits = rag.search(embed([question])[0]) if question else []
+        hits = []
+        if question:
+            try:
+                hits = rag.search(embed([question])[0])
+            except Exception as e:  # noqa: BLE001
+                logger.warning("chat retrieval skipped: %s", e)
         sources = list({h["slug"]: {"slug": h["slug"], "title": h["title"]} for h in hits}.values())
         yield _sse("sources", {"sources": sources})
         answer = ""

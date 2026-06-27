@@ -9,19 +9,19 @@ function AccretionDisk() {
   const glow = useRef<THREE.Mesh>(null);
 
   useFrame((_state, delta) => {
-    if (disk.current) disk.current.rotation.z += delta * 0.16;
-    if (glow.current) glow.current.rotation.z -= delta * 0.08;
+    if (disk.current) disk.current.rotation.z += delta * 0.055;
+    if (glow.current) glow.current.rotation.z -= delta * 0.025;
   });
 
   return (
     <group rotation={[1.18, 0.18, -0.38]}>
       <mesh ref={disk}>
         <torusGeometry args={[1.25, 0.09, 48, 220]} />
-        <meshBasicMaterial color="#f5a623" transparent opacity={0.72} />
+        <meshBasicMaterial color="#c49a62" transparent opacity={0.46} />
       </mesh>
       <mesh ref={glow} scale={[1.18, 1.18, 1.18]}>
         <torusGeometry args={[1.25, 0.15, 48, 220]} />
-        <meshBasicMaterial color="#00d4ff" transparent opacity={0.18} />
+        <meshBasicMaterial color="#d9dee7" transparent opacity={0.07} />
       </mesh>
       <mesh scale={[0.72, 0.72, 0.72]}>
         <sphereGeometry args={[1, 64, 64]} />
@@ -51,7 +51,7 @@ function NebulaPoints({ count }: { count: number }) {
   }, [count]);
 
   useFrame((_state, delta) => {
-    if (points.current) points.current.rotation.y += delta * 0.018;
+    if (points.current) points.current.rotation.y += delta * 0.006;
   });
 
   return (
@@ -59,7 +59,7 @@ function NebulaPoints({ count }: { count: number }) {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial size={0.018} color="#8cecff" transparent opacity={0.68} sizeAttenuation />
+      <pointsMaterial size={0.012} color="#cfd6e0" transparent opacity={0.34} sizeAttenuation />
     </points>
   );
 }
@@ -70,7 +70,7 @@ function QualityBridge({ width }: { width: number }) {
   gl.setPixelRatio(quality.pixelRatio);
   return (
     <>
-      <Stars radius={32} depth={18} count={quality.fullEffects ? 1800 : 700} factor={4} fade speed={0.4} />
+      <Stars radius={38} depth={22} count={quality.fullEffects ? 1100 : 460} factor={2.2} fade speed={0.08} />
       <NebulaPoints count={quality.particles} />
       <AccretionDisk />
     </>
