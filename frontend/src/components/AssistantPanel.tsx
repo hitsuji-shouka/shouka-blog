@@ -2,6 +2,7 @@ import { type KeyboardEvent, useState } from "react";
 import { Link } from "react-router-dom";
 import { Send, SlidersHorizontal, X } from "lucide-react";
 import { sendChat, type ChatMsg, type Source } from "../lib/chat";
+import { createTextStreamer } from "../lib/typewriter";
 
 function TarsBars() {
   return (
@@ -28,15 +29,20 @@ export function AssistantPanel() {
     const history: ChatMsg[] = [...msgs, { role: "user", content: q }];
     setMsgs([...history, { role: "assistant", content: "" }]);
     setInput(""); setSources([]); setBusy(true);
+    const appendAssistantText = (text: string) => setMsgs((m) => {
+      const c = [...m]; c[c.length - 1] = { role: "assistant", content: c[c.length - 1].content + text }; return c;
+    });
+    const streamer = createTextStreamer({ delayMs: 18, onText: appendAssistantText });
     await sendChat(history, {
       onSources: setSources,
-      onDelta: (t) => setMsgs((m) => {
-        const c = [...m]; c[c.length - 1] = { role: "assistant", content: c[c.length - 1].content + t }; return c;
-      }),
+      onDelta: streamer.enqueue,
       onError: (e) => setMsgs((m) => {
+        streamer.clear();
         const c = [...m]; c[c.length - 1] = { role: "assistant", content: e }; return c;
       }),
     }, { humor, honesty });
+    await streamer.drain();
+    streamer.dispose();
     setBusy(false);
   }
 
