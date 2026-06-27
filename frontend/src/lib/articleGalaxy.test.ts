@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildArticleGalaxy, estimateReadMinutes, GALAXY_CONFIG } from "./articleGalaxy";
+import { buildArticleGalaxy, categoryPath, estimateReadMinutes, GALAXY_CONFIG } from "./articleGalaxy";
 import type { PostMeta } from "./types";
 
 const base = (slug: string, category: PostMeta["category"], summary = "short"): PostMeta => ({
@@ -51,5 +51,11 @@ describe("buildArticleGalaxy", () => {
     const posts = [base("a", "科技"), base("b", "理财"), base("c", "随笔")];
 
     expect(buildArticleGalaxy(posts)).toEqual(buildArticleGalaxy(posts));
+  });
+});
+
+describe("categoryPath", () => {
+  it("builds encoded category links for stellar systems", () => {
+    expect(categoryPath("科技")).toBe("/category/%E7%A7%91%E6%8A%80");
   });
 });

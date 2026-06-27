@@ -3,7 +3,7 @@ import { Html, OrbitControls, Stars } from "@react-three/drei";
 import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as THREE from "three";
-import { buildArticleGalaxy, type ArticleGalaxy as ArticleGalaxyData, type ArticlePlanet } from "../lib/articleGalaxy";
+import { buildArticleGalaxy, categoryPath, type ArticleGalaxy as ArticleGalaxyData, type ArticlePlanet } from "../lib/articleGalaxy";
 import type { PostMeta } from "../lib/types";
 
 function planetTexture(seed: number, color: string) {
@@ -31,7 +31,7 @@ function planetTexture(seed: number, color: string) {
   return texture;
 }
 
-function StellarCore({ galaxy }: { galaxy: ArticleGalaxyData }) {
+function StellarCore({ galaxy, onSelect }: { galaxy: ArticleGalaxyData; onSelect: (galaxy: ArticleGalaxyData) => void }) {
   const star = useRef<THREE.Mesh>(null);
   useFrame(({ clock }) => {
     const pulse = 1 + Math.sin(clock.elapsedTime * 1.15 + galaxy.config.center[0]) * 0.045;
@@ -39,7 +39,15 @@ function StellarCore({ galaxy }: { galaxy: ArticleGalaxyData }) {
   });
 
   return (
-    <group position={galaxy.config.center}>
+    <group
+      position={galaxy.config.center}
+      onPointerOver={() => { document.body.style.cursor = "pointer"; }}
+      onPointerOut={() => { document.body.style.cursor = ""; }}
+      onClick={(event) => {
+        event.stopPropagation();
+        onSelect(galaxy);
+      }}
+    >
       <mesh ref={star}>
         <sphereGeometry args={[0.34, 48, 48]} />
         <meshBasicMaterial color={galaxy.config.color} transparent opacity={0.82} />
@@ -49,10 +57,16 @@ function StellarCore({ galaxy }: { galaxy: ArticleGalaxyData }) {
         <meshBasicMaterial color={galaxy.config.mutedColor} transparent opacity={0.09} />
       </mesh>
       <Html position={[0, -0.78, 0]} center distanceFactor={9}>
-        <div className="stellar-label">
+        <button
+          className="stellar-label"
+          onClick={(event) => {
+            event.stopPropagation();
+            onSelect(galaxy);
+          }}
+        >
           <strong>{galaxy.config.name}</strong>
           <span>{galaxy.category}</span>
-        </div>
+        </button>
       </Html>
     </group>
   );
@@ -153,7 +167,7 @@ function GalaxyScene({ posts, focusCategory }: { posts: PostMeta[]; focusCategor
       <Stars radius={46} depth={24} count={700} factor={2.1} fade speed={0.05} />
       {visible.map((galaxy) => (
         <group key={galaxy.category}>
-          <StellarCore galaxy={galaxy} />
+          <StellarCore galaxy={galaxy} onSelect={(next) => navigate(categoryPath(next.category))} />
           <ConstellationLines planets={galaxy.planets} color={galaxy.config.mutedColor} />
           {galaxy.planets.map((planet) => (
             <Planet
@@ -178,7 +192,7 @@ export function ArticleGalaxy({ posts, focusCategory, variant = "home" }: { post
       <div className="article-galaxy__scene">
         <GalaxyScene posts={posts} focusCategory={focusCategory} />
       </div>
-      <div className="article-galaxy__hint">拖拽旋转视角 · 滚轮缩放 · 点击行星阅读</div>
+      <div className="article-galaxy__hint">拖拽旋转视角 · 点击恒星进入星系 · 点击行星阅读</div>
     </section>
   );
 }

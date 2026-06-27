@@ -266,10 +266,13 @@ button, input, textarea { font: inherit; }
   color: rgba(236, 239, 244, .78);
   font-family: var(--font-mono);
   text-transform: uppercase;
-  pointer-events: none;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
 }
 .stellar-label strong { display: block; font-size: 12px; letter-spacing: .16em; }
 .stellar-label span { display: block; margin-top: 4px; color: var(--dim); font-size: 10px; letter-spacing: .2em; }
+.stellar-label:hover strong { color: var(--cyan); }
 .planet-hud {
   width: 240px;
   padding: 12px 13px;

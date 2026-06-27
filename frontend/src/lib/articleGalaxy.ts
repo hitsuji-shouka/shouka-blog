@@ -30,6 +30,10 @@ export const GALAXY_CONFIG: Record<Category, GalaxyConfig> = {
 
 const CATEGORY_ORDER: Category[] = ["科技", "理财", "随笔"];
 
+export function categoryPath(category: Category): string {
+  return `/category/${encodeURIComponent(category)}`;
+}
+
 export function stableHash(value: string): number {
   let hash = 2166136261;
   for (let i = 0; i < value.length; i += 1) {
