@@ -6,7 +6,7 @@ import type { PostMeta } from "../lib/types";
 
 const base: PostMeta = {
   slug: "a", title: "标题A", date: "2026-06-12", category: "科技",
-  tags: [], summary: "摘要", cover: null,
+  tags: [], summary: "摘要", cover: null, audio: null, sources: [],
 };
 
 const html = (p: PostMeta) =>
@@ -22,5 +22,8 @@ describe("PostCard", () => {
   it("无封面不渲染 img，有封面渲染", () => {
     expect(html(base)).not.toContain("<img");
     expect(html({ ...base, cover: "http://c/x.png" })).toContain("http://c/x.png");
+  });
+  it("音频文章显示可听标记", () => {
+    expect(html({ ...base, audio: "/audio/a.mp3" })).toContain("可听");
   });
 });

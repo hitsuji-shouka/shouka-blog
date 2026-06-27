@@ -8,6 +8,21 @@ def test_render_has_tag_and_category():
     assert "category: AI" in md and "tags: [每日报告]" in md and "要点一" in md
 
 
+def test_render_audio_and_sources():
+    md = report.render(
+        "要点一",
+        "理财",
+        "理财早报",
+        date(2026, 6, 27),
+        tags=["每日报告", "理财早报"],
+        audio="/audio/finance-20260627.mp3",
+        sources=["CNBC", "Reuters"],
+    )
+    assert "tags: [每日报告, 理财早报]" in md
+    assert "audio: /audio/finance-20260627.mp3" in md
+    assert "sources:\n  - CNBC\n  - Reuters" in md
+
+
 def test_write_skips_empty(tmp_path, monkeypatch):
     monkeypatch.setattr(report, "CONTENT", tmp_path)
     assert report.write("", "AI", "ai", "每日 AI 进展", date(2026, 6, 13)) is None

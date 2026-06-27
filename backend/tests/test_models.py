@@ -8,15 +8,20 @@ def test_post_meta_defaults():
     assert m.tags == []
     assert m.summary == ""
     assert m.cover is None
+    assert m.audio is None
+    assert m.sources == []
     assert m.category is Category.TECH
 
 
 def test_post_detail_extends_meta_with_content():
     d = PostDetail(
         slug="a", title="A", date=date(2026, 6, 12), category="随笔",
-        tags=["x"], summary="s", cover="http://c", content="# hi",
+        tags=["x"], summary="s", cover="http://c", audio="/audio/a.mp3",
+        sources=["CNBC"], content="# hi",
     )
     assert d.content == "# hi"
+    assert d.audio == "/audio/a.mp3"
+    assert d.sources == ["CNBC"]
     assert d.category is Category.ESSAY
     assert isinstance(d, PostMeta)
 

@@ -5,6 +5,7 @@ import { getPost } from "../lib/api";
 import type { PostDetail } from "../lib/types";
 import { Markdown } from "../components/Markdown";
 import { CAT_COLOR } from "../lib/cat";
+import { PostAudio } from "../components/PostAudio";
 
 export function Post() {
   const { slug } = useParams();
@@ -24,6 +25,7 @@ export function Post() {
       <div style={{ marginBottom: 16 }}>
         {post.tags.map((t) => <Tag key={t} className="tag" onClick={() => nav(`/category/${post.category}`)}>#{t}</Tag>)}
       </div>
+      <PostAudio src={post.audio} />
       <Markdown content={post.content} />
     </article>
   );
