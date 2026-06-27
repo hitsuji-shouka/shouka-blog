@@ -32,6 +32,7 @@ def run_daily_finance(
     input_path: Path | None = None,
     min_items: int | None = None,
     hours: int | None = None,
+    voice: str | None = None,
     runner: Runner = subprocess.run,
 ) -> int:
     run_date = run_date or date.today()
@@ -59,6 +60,7 @@ def run_daily_finance(
             input_path=input_path,
             min_items=min_items,
             hours=hours,
+            voice=voice,
         )
         with log_path.open("a", encoding="utf-8") as log:
             log.write(f"[{_now()}] start: {' '.join(str(part) for part in cmd)}\n")
@@ -82,6 +84,7 @@ def _build_command(
     input_path: Path | None,
     min_items: int | None,
     hours: int | None,
+    voice: str | None,
 ) -> list[str]:
     cmd = [python, "-m", "pipeline.run", "finance", "--mode", "news"]
     if input_path:
@@ -96,6 +99,8 @@ def _build_command(
         cmd.extend(["--min-items", str(min_items)])
     if hours is not None:
         cmd.extend(["--hours", str(hours)])
+    if voice:
+        cmd.extend(["--voice", voice])
     return cmd
 
 
@@ -119,6 +124,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--force", action="store_true", help="Overwrite today's briefing if it already exists")
     parser.add_argument("--min-items", type=int, help="Minimum effective news items required")
     parser.add_argument("--hours", type=int, help="News recency window")
+    parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. female-yujie")
     return parser.parse_args(argv)
 
 
@@ -133,6 +139,7 @@ def main(argv: list[str] | None = None) -> int:
         force=args.force,
         min_items=args.min_items,
         hours=args.hours,
+        voice=args.voice,
     )
 
 

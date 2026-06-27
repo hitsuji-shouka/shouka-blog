@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     minimax_tts_base: str = "https://api.minimax.chat/v1/t2a_v2"
     minimax_group_id: str = ""
     minimax_tts_model: str = "speech-02-turbo"
-    minimax_tts_voice: str = "male-qn-qingse"
+    minimax_tts_voice: str = "female-yujie"
     embed_key: str = ""
     embed_base: str = "https://dashscope.aliyuncs.com/compatible-mode/v1"
     embed_model: str = "text-embedding-v4"

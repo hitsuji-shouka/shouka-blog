@@ -43,6 +43,38 @@ def test_news_mode_writes_markdown_and_audio(tmp_path, monkeypatch):
     assert (tmp_path / "audio" / "finance-20260627.mp3").read_bytes() == b"mp3"
 
 
+def test_news_mode_can_override_tts_voice(tmp_path, monkeypatch):
+    monkeypatch.setattr(report, "CONTENT", tmp_path / "content")
+    monkeypatch.setattr(run, "AUDIO_DIR", tmp_path / "audio")
+    monkeypatch.setattr(run, "today", lambda: date(2026, 6, 27))
+    monkeypatch.setattr(run, "summarize_news", lambda items, domain: {"article": "正文", "script": "播客稿"})
+    voices = []
+
+    def fake_tts(_text, path, settings):
+        voices.append(settings.minimax_tts_voice)
+        path.write_bytes(b"mp3")
+        return path
+
+    monkeypatch.setattr(run, "synthesize_to_file", fake_tts)
+
+    run.main(
+        [
+            "finance",
+            "--mode",
+            "news",
+            "--input",
+            str(write_input(tmp_path)),
+            "--with-audio",
+            "--voice",
+            "female-yujie",
+            "--min-items",
+            "1",
+        ]
+    )
+
+    assert voices == ["female-yujie"]
+
+
 def test_news_mode_skips_existing_without_force(tmp_path, monkeypatch):
     monkeypatch.setattr(report, "CONTENT", tmp_path)
     monkeypatch.setattr(run, "today", lambda: date(2026, 6, 27))

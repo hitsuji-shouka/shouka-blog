@@ -81,6 +81,25 @@ def test_daily_finance_can_disable_audio_and_publish(tmp_path):
     assert calls == [[daily_finance.PYTHON, "-m", "pipeline.run", "finance", "--mode", "news"]]
 
 
+def test_daily_finance_can_override_voice(tmp_path):
+    calls = []
+
+    def fake_runner(cmd, **_kwargs):
+        calls.append(cmd)
+        return daily_finance.RunResult(returncode=0)
+
+    code = daily_finance.run_daily_finance(
+        root=tmp_path,
+        run_date=date(2026, 6, 27),
+        voice="female-yujie",
+        runner=fake_runner,
+    )
+
+    assert code == 0
+    assert "--voice" in calls[0]
+    assert calls[0][-1] == "female-yujie"
+
+
 def test_daily_finance_prefers_project_venv_python(tmp_path):
     venv_python = tmp_path / "backend" / ".venv" / "bin" / "python"
     venv_python.parent.mkdir(parents=True)

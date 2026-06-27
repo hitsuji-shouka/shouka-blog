@@ -44,6 +44,12 @@ python3 -m pipeline.daily_finance --no-publish
 python3 -m pipeline.daily_finance --no-audio --no-publish
 ```
 
+临时指定 MiniMax 音色：
+
+```bash
+python3 -m pipeline.daily_finance --voice female-yujie
+```
+
 覆盖当天已有早报：
 
 ```bash

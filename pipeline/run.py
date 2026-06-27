@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import copy
 import logging
 import sys
 import tomllib
@@ -52,6 +53,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--mode", choices=["legacy", "news"], default="legacy")
     parser.add_argument("--input", type=Path, help="OpenClaw JSON input path")
     parser.add_argument("--with-audio", action="store_true")
+    parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. female-yujie")
     parser.add_argument("--publish", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--min-items", type=int, default=5)
@@ -93,7 +95,7 @@ def run_news(args: argparse.Namespace) -> Path | None:
     if args.with_audio:
         audio_path = AUDIO_DIR / f"{cfg['prefix']}-{d:%Y%m%d}.mp3"
         audio_path.parent.mkdir(parents=True, exist_ok=True)
-        synthesize_to_file(script or article, audio_path, settings)
+        synthesize_to_file(script or article, audio_path, _tts_settings(args.voice))
         audio_url = f"/audio/{audio_path.name}"
 
     sources = sorted({item.source for item in items if item.source})
@@ -122,6 +124,14 @@ def _load_news_items(args: argparse.Namespace):
     else:
         raw = fetch_sources(load_sources(SOURCES, args.topic))
     return dedupe_items(filter_recent(raw, hours=args.hours))
+
+
+def _tts_settings(voice: str | None):
+    if not voice:
+        return settings
+    scoped = copy.copy(settings)
+    scoped.minimax_tts_voice = voice
+    return scoped
 
 
 if __name__ == "__main__":
