@@ -17,11 +17,11 @@ function AccretionDisk() {
     <group rotation={[1.18, 0.18, -0.38]}>
       <mesh ref={disk}>
         <torusGeometry args={[1.25, 0.09, 48, 220]} />
-        <meshBasicMaterial color="#c49a62" transparent opacity={0.46} />
+        <meshBasicMaterial color="#d8e6f3" transparent opacity={0.42} />
       </mesh>
       <mesh ref={glow} scale={[1.18, 1.18, 1.18]}>
         <torusGeometry args={[1.25, 0.15, 48, 220]} />
-        <meshBasicMaterial color="#d9dee7" transparent opacity={0.07} />
+        <meshBasicMaterial color="#7dd7ff" transparent opacity={0.08} />
       </mesh>
       <mesh scale={[0.72, 0.72, 0.72]}>
         <sphereGeometry args={[1, 64, 64]} />
