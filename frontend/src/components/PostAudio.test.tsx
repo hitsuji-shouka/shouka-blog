@@ -10,6 +10,8 @@ describe("PostAudio", () => {
     expect(out).toContain("controls");
     expect(out).toContain("/audio/finance-20260627.mp3");
     expect(out).toContain("AUDIO BRIEFING");
+    expect(out).toContain("download=\"finance-20260627.mp3\"");
+    expect(out).toContain("下载音频");
   });
 
   it("renders nothing without a source", () => {

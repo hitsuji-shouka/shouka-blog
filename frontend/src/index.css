@@ -307,6 +307,19 @@ button, input, textarea { font: inherit; }
 .post-audio { padding: 16px; margin: 0 0 22px; }
 .post-audio__header { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 12px; color: var(--dim); font: 800 10px/1.4 var(--font-mono); letter-spacing: .16em; }
 .post-audio__header span { display: inline-flex; align-items: center; gap: 8px; color: var(--finance); }
+.post-audio__download {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+  border: 1px solid rgba(226, 232, 240, .18);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(226, 232, 240, .05);
+  font: 800 10px/1 var(--font-mono);
+  letter-spacing: .08em;
+}
+.post-audio__download:hover { color: var(--finance); border-color: rgba(245, 166, 35, .36); }
 .post-audio audio { width: 100%; display: block; }
 
 .markdown { line-height: 1.9; font-size: 16px; color: rgba(232, 236, 244, .86); }
