@@ -124,7 +124,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--force", action="store_true", help="Overwrite today's briefing if it already exists")
     parser.add_argument("--min-items", type=int, help="Minimum effective news items required")
     parser.add_argument("--hours", type=int, help="News recency window")
-    parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. female-yujie")
+    parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. presenter_female")
     return parser.parse_args(argv)
 
 

@@ -53,7 +53,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--mode", choices=["legacy", "news"], default="legacy")
     parser.add_argument("--input", type=Path, help="OpenClaw JSON input path")
     parser.add_argument("--with-audio", action="store_true")
-    parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. female-yujie")
+    parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. presenter_female")
     parser.add_argument("--publish", action="store_true")
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--min-items", type=int, default=5)

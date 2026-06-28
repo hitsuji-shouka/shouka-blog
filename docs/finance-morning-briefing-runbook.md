@@ -50,6 +50,12 @@ python3 -m pipeline.daily_finance --no-audio --no-publish
 python3 -m pipeline.daily_finance --voice female-yujie
 ```
 
+更适合理财早报的稳重女声推荐使用：
+
+```bash
+python3 -m pipeline.daily_finance --voice presenter_female
+```
+
 覆盖当天已有早报：
 
 ```bash

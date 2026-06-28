@@ -35,7 +35,18 @@ def test_news_mode_writes_markdown_and_audio(tmp_path, monkeypatch):
 
     monkeypatch.setattr(run, "synthesize_to_file", fake_tts)
 
-    out = run.main(["finance", "--mode", "news", "--input", str(write_input(tmp_path)), "--with-audio", "--min-items", "1"])
+    out = run.main([
+        "finance",
+        "--mode",
+        "news",
+        "--input",
+        str(write_input(tmp_path)),
+        "--with-audio",
+        "--min-items",
+        "1",
+        "--hours",
+        "72",
+    ])
 
     assert out is not None
     assert out.name == "finance-20260627.md"
@@ -66,13 +77,15 @@ def test_news_mode_can_override_tts_voice(tmp_path, monkeypatch):
             str(write_input(tmp_path)),
             "--with-audio",
             "--voice",
-            "female-yujie",
+            "presenter_female",
             "--min-items",
             "1",
+            "--hours",
+            "72",
         ]
     )
 
-    assert voices == ["female-yujie"]
+    assert voices == ["presenter_female"]
 
 
 def test_news_mode_skips_existing_without_force(tmp_path, monkeypatch):

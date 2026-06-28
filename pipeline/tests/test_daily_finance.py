@@ -91,13 +91,13 @@ def test_daily_finance_can_override_voice(tmp_path):
     code = daily_finance.run_daily_finance(
         root=tmp_path,
         run_date=date(2026, 6, 27),
-        voice="female-yujie",
+        voice="presenter_female",
         runner=fake_runner,
     )
 
     assert code == 0
     assert "--voice" in calls[0]
-    assert calls[0][-1] == "female-yujie"
+    assert calls[0][-1] == "presenter_female"
 
 
 def test_daily_finance_prefers_project_venv_python(tmp_path):
