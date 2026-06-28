@@ -11,3 +11,10 @@ prefix = "ai"
 title = "每日 AI 进展"
 handles = ["sanbuphy", "op7418", "claudeai", "AnthropicAI", "bcherny", "GoogleAI", "karpathy"]
 wechat = ["阿里云开发者", "腾讯云开发者"]
+
+[tech]
+category = "科技"
+prefix = "tech"
+title = "科技早报"
+handles = []
+wechat = []

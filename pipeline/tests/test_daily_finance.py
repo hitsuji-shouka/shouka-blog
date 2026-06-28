@@ -44,6 +44,37 @@ def test_daily_finance_runs_publish_command_and_writes_log(tmp_path):
     assert not (tmp_path / "pipeline" / "logs" / "finance-20260627.lock").exists()
 
 
+def test_daily_briefing_can_run_tech_topic_with_default_voice(tmp_path):
+    calls = []
+
+    def fake_runner(cmd, cwd, stdout, stderr, text):
+        calls.append(cmd)
+        return daily_finance.RunResult(returncode=0)
+
+    code = daily_finance.run_daily_briefing(
+        topic="tech",
+        default_voice="Chinese_radio_reporter_nv1",
+        root=tmp_path,
+        run_date=date(2026, 6, 27),
+        runner=fake_runner,
+    )
+
+    assert code == 0
+    assert calls == [[
+        daily_finance.PYTHON,
+        "-m",
+        "pipeline.run",
+        "tech",
+        "--mode",
+        "news",
+        "--with-audio",
+        "--publish",
+        "--voice",
+        "Chinese_radio_reporter_nv1",
+    ]]
+    assert (tmp_path / "pipeline" / "logs" / "tech-20260627.log").exists()
+
+
 def test_daily_finance_refuses_when_lock_exists(tmp_path):
     log_dir = tmp_path / "pipeline" / "logs"
     log_dir.mkdir(parents=True)

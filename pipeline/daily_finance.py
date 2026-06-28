@@ -35,11 +35,41 @@ def run_daily_finance(
     voice: str | None = None,
     runner: Runner = subprocess.run,
 ) -> int:
+    return run_daily_briefing(
+        topic="finance",
+        root=root,
+        run_date=run_date,
+        with_audio=with_audio,
+        publish=publish,
+        force=force,
+        input_path=input_path,
+        min_items=min_items,
+        hours=hours,
+        voice=voice,
+        runner=runner,
+    )
+
+
+def run_daily_briefing(
+    *,
+    topic: str,
+    root: Path = ROOT,
+    run_date: date | None = None,
+    with_audio: bool = True,
+    publish: bool = True,
+    force: bool = False,
+    input_path: Path | None = None,
+    min_items: int | None = None,
+    hours: int | None = None,
+    voice: str | None = None,
+    default_voice: str | None = None,
+    runner: Runner = subprocess.run,
+) -> int:
     run_date = run_date or date.today()
     log_dir = root / "pipeline" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
-    log_path = log_dir / f"finance-{run_date:%Y%m%d}.log"
-    lock_path = log_dir / f"finance-{run_date:%Y%m%d}.lock"
+    log_path = log_dir / f"{topic}-{run_date:%Y%m%d}.log"
+    lock_path = log_dir / f"{topic}-{run_date:%Y%m%d}.lock"
 
     try:
         lock_fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
@@ -53,6 +83,7 @@ def run_daily_finance(
             lock.write(f"pid={os.getpid()}\nstarted={_now()}\n")
 
         cmd = _build_command(
+            topic=topic,
             python=resolve_python(root),
             with_audio=with_audio,
             publish=publish,
@@ -60,7 +91,7 @@ def run_daily_finance(
             input_path=input_path,
             min_items=min_items,
             hours=hours,
-            voice=voice,
+            voice=voice or default_voice,
         )
         with log_path.open("a", encoding="utf-8") as log:
             log.write(f"[{_now()}] start: {' '.join(str(part) for part in cmd)}\n")
@@ -77,6 +108,7 @@ def run_daily_finance(
 
 def _build_command(
     *,
+    topic: str = "finance",
     python: str = PYTHON,
     with_audio: bool,
     publish: bool,
@@ -86,7 +118,7 @@ def _build_command(
     hours: int | None,
     voice: str | None,
 ) -> list[str]:
-    cmd = [python, "-m", "pipeline.run", "finance", "--mode", "news"]
+    cmd = [python, "-m", "pipeline.run", topic, "--mode", "news"]
     if input_path:
         cmd.extend(["--input", str(input_path)])
     if with_audio:

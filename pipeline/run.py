@@ -103,9 +103,9 @@ def run_news(args: argparse.Namespace) -> Path | None:
         article,
         cfg["category"],
         cfg["prefix"],
-        "理财早报" if args.topic == "finance" else cfg["title"],
+        _briefing_title(args.topic, cfg["title"]),
         d,
-        tags=["每日报告", "理财早报"] if args.topic == "finance" else ["每日报告"],
+        tags=_briefing_tags(args.topic),
         audio=audio_url,
         sources=sources,
     )
@@ -124,6 +124,22 @@ def _load_news_items(args: argparse.Namespace):
     else:
         raw = fetch_sources(load_sources(SOURCES, args.topic))
     return dedupe_items(filter_recent(raw, hours=args.hours))
+
+
+def _briefing_title(topic: str, fallback: str) -> str:
+    if topic == "finance":
+        return "理财早报"
+    if topic == "tech":
+        return "科技早报"
+    return fallback
+
+
+def _briefing_tags(topic: str) -> list[str]:
+    if topic == "finance":
+        return ["每日报告", "理财早报"]
+    if topic == "tech":
+        return ["每日报告", "科技早报"]
+    return ["每日报告"]
 
 
 def _tts_settings(voice: str | None):
