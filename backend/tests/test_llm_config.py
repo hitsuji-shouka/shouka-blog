@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 
 from config import Settings
+from pathlib import Path
 from llm import resolve_chat_config
 
 
@@ -35,3 +36,11 @@ def test_bailian_embedding_is_default_provider():
 
     assert cfg.embed_base == "https://dashscope.aliyuncs.com/compatible-mode/v1"
     assert cfg.embed_model == "text-embedding-v4"
+
+
+def test_settings_load_project_root_env_file():
+    env_file = Settings.model_config["env_file"]
+
+    assert Path(env_file).is_absolute()
+    assert Path(env_file).name == ".env"
+    assert Path(env_file).parent == Path(__file__).resolve().parents[2]

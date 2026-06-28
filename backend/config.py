@@ -2,12 +2,14 @@ from pathlib import Path
 
 from pydantic_settings import BaseSettings
 
+ROOT = Path(__file__).resolve().parent.parent
+
 
 class Settings(BaseSettings):
     """运行配置；content_dir 指向文章目录，static_dir 指向前端产物。"""
 
-    content_dir: Path = Path(__file__).resolve().parent.parent / "content"
-    static_dir: Path = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+    content_dir: Path = ROOT / "content"
+    static_dir: Path = ROOT / "frontend" / "dist"
 
     deepseek_key: str = ""
     deepseek_base: str = "https://api.deepseek.com"
@@ -28,7 +30,7 @@ class Settings(BaseSettings):
     langfuse_secret: str = ""
     langfuse_host: str = "http://localhost:3000"
 
-    model_config = {"env_prefix": "BLOG_", "env_file": ".env", "extra": "ignore"}
+    model_config = {"env_prefix": "BLOG_", "env_file": ROOT / ".env", "extra": "ignore"}
 
 
 settings = Settings()
