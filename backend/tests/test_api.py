@@ -48,6 +48,18 @@ def test_category_filter_and_invalid():
     assert client.get("/api/posts?category=时政").json() == []
 
 
+def test_api_sees_post_added_after_initial_load(tmp_path):
+    (tmp_path / "tech-20260628.md").write_text(
+        "---\ntitle: 科技早报 · 06-28\ndate: 2026-06-28\ncategory: 科技\n"
+        "tags: [每日报告, 科技早报]\n---\nnew tech body\n"
+    )
+
+    r = client.get("/api/posts/tech-20260628")
+
+    assert r.status_code == 200
+    assert r.json()["content"] == "new tech body"
+
+
 def test_categories():
     counts = {c["category"]: c["count"] for c in client.get("/api/categories").json()}
     assert counts == {"科技": 1, "理财": 0, "随笔": 1}
