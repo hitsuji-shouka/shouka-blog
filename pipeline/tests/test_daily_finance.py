@@ -7,12 +7,19 @@ import sys
 import daily_finance
 
 
+def write_generated(root: Path, name: str):
+    content = root / "content"
+    content.mkdir(exist_ok=True)
+    (content / name).write_text("ok", encoding="utf-8")
+
+
 def test_daily_finance_runs_publish_command_and_writes_log(tmp_path):
     calls = []
 
     def fake_runner(cmd, cwd, stdout, stderr, text):
         calls.append((cmd, cwd, stdout is stderr, text))
         stdout.write("generated\n")
+        write_generated(tmp_path, "finance-20260627.md")
         return daily_finance.RunResult(returncode=0)
 
     code = daily_finance.run_daily_finance(
@@ -49,6 +56,7 @@ def test_daily_briefing_can_run_tech_topic_with_default_voice(tmp_path):
 
     def fake_runner(cmd, cwd, stdout, stderr, text):
         calls.append(cmd)
+        write_generated(tmp_path, "tech-20260627.md")
         return daily_finance.RunResult(returncode=0)
 
     code = daily_finance.run_daily_briefing(
@@ -98,6 +106,7 @@ def test_daily_finance_can_disable_audio_and_publish(tmp_path):
 
     def fake_runner(cmd, **_kwargs):
         calls.append(cmd)
+        write_generated(tmp_path, "finance-20260627.md")
         return daily_finance.RunResult(returncode=0)
 
     code = daily_finance.run_daily_finance(
@@ -117,6 +126,7 @@ def test_daily_finance_can_override_voice(tmp_path):
 
     def fake_runner(cmd, **_kwargs):
         calls.append(cmd)
+        write_generated(tmp_path, "finance-20260627.md")
         return daily_finance.RunResult(returncode=0)
 
     code = daily_finance.run_daily_finance(

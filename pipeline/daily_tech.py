@@ -12,6 +12,8 @@ except ImportError:
 TECH_VOICE = "Chinese_radio_reporter_nv1"
 TECH_MIN_ITEMS = 3
 TECH_HOURS = 72
+TECH_RETRIES = 3
+TECH_RETRY_DELAY_SECONDS = 300
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -53,6 +55,8 @@ def run_daily_tech(
     min_items: int | None = None,
     hours: int | None = None,
     voice: str | None = TECH_VOICE,
+    retries: int = TECH_RETRIES,
+    retry_delay_seconds: float = TECH_RETRY_DELAY_SECONDS,
     runner=None,
 ) -> int:
     kwargs = {}
@@ -71,6 +75,8 @@ def run_daily_tech(
         min_items=min_items if min_items is not None else TECH_MIN_ITEMS,
         hours=hours if hours is not None else TECH_HOURS,
         voice=voice,
+        retries=retries,
+        retry_delay_seconds=retry_delay_seconds,
     )
 
 

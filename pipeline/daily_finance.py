@@ -4,6 +4,7 @@ import argparse
 import os
 import subprocess
 import sys
+import time
 from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
@@ -33,6 +34,8 @@ def run_daily_finance(
     min_items: int | None = None,
     hours: int | None = None,
     voice: str | None = None,
+    retries: int = 1,
+    retry_delay_seconds: float = 0,
     runner: Runner = subprocess.run,
 ) -> int:
     return run_daily_briefing(
@@ -46,6 +49,8 @@ def run_daily_finance(
         min_items=min_items,
         hours=hours,
         voice=voice,
+        retries=retries,
+        retry_delay_seconds=retry_delay_seconds,
         runner=runner,
     )
 
@@ -63,6 +68,8 @@ def run_daily_briefing(
     hours: int | None = None,
     voice: str | None = None,
     default_voice: str | None = None,
+    retries: int = 1,
+    retry_delay_seconds: float = 0,
     runner: Runner = subprocess.run,
 ) -> int:
     run_date = run_date or date.today()
@@ -82,6 +89,12 @@ def run_daily_briefing(
         with os.fdopen(lock_fd, "w", encoding="utf-8") as lock:
             lock.write(f"pid={os.getpid()}\nstarted={_now()}\n")
 
+        expected_path = root / "content" / f"{topic}-{run_date:%Y%m%d}.md"
+        if expected_path.exists() and not force:
+            with log_path.open("a", encoding="utf-8") as log:
+                log.write(f"[{_now()}] exists: {expected_path.name}\n")
+            return 0
+
         cmd = _build_command(
             topic=topic,
             python=resolve_python(root),
@@ -93,15 +106,26 @@ def run_daily_briefing(
             hours=hours,
             voice=voice or default_voice,
         )
+        attempts = max(1, retries)
         with log_path.open("a", encoding="utf-8") as log:
-            log.write(f"[{_now()}] start: {' '.join(str(part) for part in cmd)}\n")
-            try:
-                result = runner(cmd, cwd=root, stdout=log, stderr=log, text=True)
-            except Exception as exc:
-                log.write(f"[{_now()}] failed: {exc}\n")
-                return 1
-            log.write(f"[{_now()}] exit: {result.returncode}\n")
-            return int(result.returncode)
+            for attempt in range(1, attempts + 1):
+                log.write(f"[{_now()}] start attempt {attempt}/{attempts}: {' '.join(str(part) for part in cmd)}\n")
+                try:
+                    result = runner(cmd, cwd=root, stdout=log, stderr=log, text=True)
+                except Exception as exc:
+                    log.write(f"[{_now()}] failed attempt {attempt}/{attempts}: {exc}\n")
+                    result = RunResult(returncode=1)
+                log.write(f"[{_now()}] exit attempt {attempt}/{attempts}: {result.returncode}\n")
+
+                if result.returncode != 0:
+                    return int(result.returncode)
+                if expected_path.exists():
+                    return 0
+
+                log.write(f"[{_now()}] no output yet: {expected_path.name}\n")
+                if attempt < attempts and retry_delay_seconds > 0:
+                    time.sleep(retry_delay_seconds)
+            return 1
     finally:
         lock_path.unlink(missing_ok=True)
 
