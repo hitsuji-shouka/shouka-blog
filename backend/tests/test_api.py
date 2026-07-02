@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 import posts
-from main import app
+from main import app, build_rag_if_configured
 
 
 @pytest.fixture(autouse=True)
@@ -63,3 +63,89 @@ def test_api_sees_post_added_after_initial_load(tmp_path):
 def test_categories():
     counts = {c["category"]: c["count"] for c in client.get("/api/categories").json()}
     assert counts == {"科技": 1, "理财": 0, "随笔": 1}
+
+
+def test_health_check_reports_ready():
+    r = client.get("/api/health")
+
+    assert r.status_code == 200
+    assert r.json() == {"status": "ok", "service": "shoka-blog"}
+
+
+def test_version_reports_deployed_revision(monkeypatch):
+    monkeypatch.setenv("APP_VERSION", "test-sha")
+
+    r = client.get("/api/version")
+
+    assert r.status_code == 200
+    assert r.json() == {"version": "test-sha", "service": "shoka-blog"}
+
+
+def test_robots_txt_points_to_sitemap(monkeypatch):
+    monkeypatch.setenv("SITE_DOMAIN", "blog.example.test")
+
+    r = client.get("/robots.txt")
+
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/plain")
+    assert "User-agent: *" in r.text
+    assert "Allow: /" in r.text
+    assert "Sitemap: https://blog.example.test/sitemap.xml" in r.text
+
+
+def test_sitemap_lists_public_pages(monkeypatch):
+    monkeypatch.setenv("SITE_DOMAIN", "blog.example.test")
+
+    r = client.get("/sitemap.xml")
+
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/xml")
+    assert "<loc>https://blog.example.test/</loc>" in r.text
+    assert "<loc>https://blog.example.test/category/%E7%A7%91%E6%8A%80</loc>" in r.text
+    assert "<loc>https://blog.example.test/category/%E9%9A%8F%E7%AC%94</loc>" in r.text
+    assert "<loc>https://blog.example.test/post/b</loc>" in r.text
+    assert "<loc>https://blog.example.test/post/a</loc>" in r.text
+    assert "<lastmod>2026-06-12</lastmod>" in r.text
+
+
+def test_feed_xml_lists_recent_posts(monkeypatch):
+    monkeypatch.setenv("SITE_DOMAIN", "blog.example.test")
+
+    r = client.get("/feed.xml")
+
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("application/rss+xml")
+    assert '<rss version="2.0">' in r.text
+    assert "<title>Shouka Blog</title>" in r.text
+    assert "<link>https://blog.example.test/</link>" in r.text
+    assert "<title>B</title>" in r.text
+    assert "<link>https://blog.example.test/post/b</link>" in r.text
+    assert "<title>A</title>" in r.text
+    assert "<link>https://blog.example.test/post/a</link>" in r.text
+
+
+def test_static_home_uses_absolute_public_share_urls(monkeypatch):
+    monkeypatch.setenv("SITE_DOMAIN", "blog.example.test")
+
+    r = client.get("/")
+
+    assert r.status_code == 200
+    assert 'rel="canonical" href="https://blog.example.test/"' in r.text
+    assert 'property="og:url" content="https://blog.example.test/"' in r.text
+    assert 'property="og:image" content="https://blog.example.test/bg/hero-space.jpg"' in r.text
+    assert 'name="twitter:image" content="https://blog.example.test/bg/hero-space.jpg"' in r.text
+
+
+def test_build_rag_skips_without_embed_key():
+    calls = []
+
+    assert build_rag_if_configured("", lambda embed: calls.append(embed), object()) is False
+    assert calls == []
+
+
+def test_build_rag_runs_with_embed_key():
+    calls = []
+    embed = object()
+
+    assert build_rag_if_configured("key", lambda fn: calls.append(fn), embed) is True
+    assert calls == [embed]

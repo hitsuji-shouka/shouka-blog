@@ -1,38 +1,78 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      args:
+        APP_VERSION: ${APP_VERSION:-local}
     restart: unless-stopped
     expose: ["8000"]
+    environment:
+      APP_VERSION: ${APP_VERSION:-local}
+      SITE_DOMAIN: ${SITE_DOMAIN:-shoka.example.com}
+      BLOG_DEEPSEEK_KEY: ${BLOG_DEEPSEEK_KEY:-}
+      BLOG_DEEPSEEK_BASE: ${BLOG_DEEPSEEK_BASE:-https://api.deepseek.com}
+      BLOG_DEEPSEEK_MODEL: ${BLOG_DEEPSEEK_MODEL:-deepseek-v4-pro}
+      BLOG_EMBED_KEY: ${BLOG_EMBED_KEY:-}
+      BLOG_EMBED_BASE: ${BLOG_EMBED_BASE:-https://api.siliconflow.cn/v1}
+      BLOG_EMBED_MODEL: ${BLOG_EMBED_MODEL:-BAAI/bge-m3}
+      BLOG_LANGFUSE_PUBLIC: ${BLOG_LANGFUSE_PUBLIC:-}
+      BLOG_LANGFUSE_SECRET: ${BLOG_LANGFUSE_SECRET:-}
+      BLOG_LANGFUSE_HOST: ${BLOG_LANGFUSE_HOST:-http://langfuse:3000}
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3).read()\""]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging: &bounded-logs
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
   caddy:
     image: caddy:2
     restart: unless-stopped
     ports: ["80:80", "443:443"]
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-shoka.example.com}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
-    depends_on: [app]
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+    logging: *bounded-logs
   langfuse-db:
     image: postgres:16
+    profiles: ["observability"]
     restart: unless-stopped
-    environment: { POSTGRES_USER: langfuse, POSTGRES_PASSWORD: langfuse, POSTGRES_DB: langfuse }
+    environment:
+      POSTGRES_USER: ${LANGFUSE_DB_USER:-langfuse}
+      POSTGRES_PASSWORD: ${LANGFUSE_DB_PASSWORD:-change-me-langfuse-db}
+      POSTGRES_DB: ${LANGFUSE_DB_NAME:-langfuse}
     volumes: [langfuse_pg:/var/lib/postgresql/data]
+    logging: *bounded-logs
   langfuse:
     image: langfuse/langfuse:2
+    profiles: ["observability"]
     restart: unless-stopped
     ports: ["3000:3000"]
     depends_on: [langfuse-db]
     environment:
-      DATABASE_URL: postgresql://langfuse:langfuse@langfuse-db:5432/langfuse
-      NEXTAUTH_SECRET: mysecretmysecretmysecretmysecre1
-      SALT: saltsaltsaltsaltsaltsaltsaltsal1
-      NEXTAUTH_URL: http://localhost:3000
+      DATABASE_URL: postgresql://${LANGFUSE_DB_USER:-langfuse}:${LANGFUSE_DB_PASSWORD:-change-me-langfuse-db}@langfuse-db:5432/${LANGFUSE_DB_NAME:-langfuse}
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-change-me-nextauth-secret}
+      SALT: ${LANGFUSE_SALT:-change-me-langfuse-salt}
+      NEXTAUTH_URL: ${LANGFUSE_NEXTAUTH_URL:-http://localhost:3000}
       # 首启自动建组织/项目/用户与 trace key（生产请改强密码）
       LANGFUSE_INIT_ORG_ID: shouka
       LANGFUSE_INIT_PROJECT_ID: blog
-      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: pk-lf-11111111-1111-1111-1111-111111111111
-      LANGFUSE_INIT_PROJECT_SECRET_KEY: sk-lf-11111111-1111-1111-1111-111111111111
-      LANGFUSE_INIT_USER_EMAIL: a@b.com
-      LANGFUSE_INIT_USER_PASSWORD: password123
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: ${LANGFUSE_INIT_PROJECT_PUBLIC_KEY:-pk-lf-change-me}
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: ${LANGFUSE_INIT_PROJECT_SECRET_KEY:-sk-lf-change-me}
+      LANGFUSE_INIT_USER_EMAIL: ${LANGFUSE_INIT_USER_EMAIL:-admin@example.com}
+      LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_INIT_USER_PASSWORD:-change-me-admin-password}
+    logging: *bounded-logs
 volumes:
   caddy_data:
+  caddy_config:
   langfuse_pg:

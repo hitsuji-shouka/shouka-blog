@@ -7,6 +7,12 @@ __pycache__/
 # Node
 node_modules/
 dist/
+# Local secrets and deploy state
+.env
+.env.*
+production.env
+.deploy.lock
+*.tsbuildinfo
 # OS / IDE
 .DS_Store
 .idea/
