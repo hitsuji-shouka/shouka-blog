@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { MemoryRouter } from "react-router-dom";
+import { StaticRouter } from "react-router-dom/server";
 import { PostCard } from "./PostCard";
 import type { PostMeta } from "../lib/types";
 
@@ -10,7 +10,7 @@ const base: PostMeta = {
 };
 
 const html = (p: PostMeta) =>
-  renderToStaticMarkup(<MemoryRouter><PostCard post={p} /></MemoryRouter>);
+  renderToStaticMarkup(<StaticRouter location="/"><PostCard post={p} /></StaticRouter>);
 
 describe("PostCard", () => {
   it("显示标题/日期/分类/摘要，链接到详情", () => {
