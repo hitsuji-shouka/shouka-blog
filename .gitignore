@@ -10,6 +10,7 @@ dist/
 # Local secrets and deploy state
 .env
 .env.*
+!.env.example
 production.env
 .deploy.lock
 *.tsbuildinfo
