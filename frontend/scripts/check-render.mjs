@@ -25,7 +25,26 @@ async function expectOpaque(page, selector, label) {
 
 async function expectLoadedImage(page, selector, label) {
   const locator = await expectVisible(page, selector, label);
-  const loaded = await locator.evaluate((node) => node instanceof HTMLImageElement && node.complete && node.naturalWidth > 0);
+  const loaded = await locator.evaluate((node) => {
+    if (!(node instanceof HTMLImageElement)) return false;
+    if (node.complete && node.naturalWidth > 0) return true;
+    return new Promise((resolve) => {
+      const finish = () => resolve(node.complete && node.naturalWidth > 0);
+      const timeout = window.setTimeout(() => {
+        node.removeEventListener("load", finish);
+        node.removeEventListener("error", finish);
+        finish();
+      }, 10_000);
+      node.addEventListener("load", () => {
+        window.clearTimeout(timeout);
+        finish();
+      }, { once: true });
+      node.addEventListener("error", () => {
+        window.clearTimeout(timeout);
+        finish();
+      }, { once: true });
+    });
+  });
   if (!loaded) fail(`${label} image did not load`);
 }
 
@@ -54,7 +73,13 @@ try {
   await expectOpaque(page, ".writing-row", "desktop writing row");
   await expectVisible(page, ".tars-fab", "desktop Agent launcher");
   await page.waitForFunction(
-    () => document.querySelector(".hero-portrait__base")?.getAttribute("src")?.endsWith("/avatar/refresh/frame-11.png"),
+    () => {
+      const image = document.querySelector(".hero-portrait__base");
+      return image instanceof HTMLImageElement
+        && image.getAttribute("src")?.endsWith("/avatar/refresh/frame-11.png")
+        && image.complete
+        && image.naturalWidth > 0;
+    },
     null,
     { timeout: 4_000 },
   );
