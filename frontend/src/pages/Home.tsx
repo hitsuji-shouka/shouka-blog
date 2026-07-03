@@ -1,9 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type PointerEvent } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { listPosts } from "../lib/api";
 import { CATS } from "../lib/cat";
+import { shouldReduceMotion } from "../lib/motion";
 import type { PostMeta } from "../lib/types";
+
+const AVATAR_REFRESH_FINAL_FRAME = 11;
+
+export function avatarRefreshInitialFrame(reduceMotion: boolean): number {
+  return reduceMotion ? AVATAR_REFRESH_FINAL_FRAME : 0;
+}
+
+export function nextAvatarRefreshFrame(frame: number): number {
+  return Math.min(frame + 1, AVATAR_REFRESH_FINAL_FRAME);
+}
 
 const buildCards = [
   { label: "BLOG CORE", title: "Markdown 写作流", text: "本地写作、Git 发布、FastAPI 只读服务。" },
@@ -31,17 +42,42 @@ export function HomeContent({ posts }: { posts: PostMeta[] }) {
   const [latest, ...rest] = posts;
   const highlights = [latest, ...rest].slice(0, 5);
   const cats = countByCategory(posts);
+  const [portraitFrame, setPortraitFrame] = useState(0);
+  useEffect(() => {
+    if (shouldReduceMotion()) {
+      setPortraitFrame(avatarRefreshInitialFrame(true));
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      setPortraitFrame((frame) => {
+        const nextFrame = nextAvatarRefreshFrame(frame);
+        if (nextFrame === frame) {
+          window.clearInterval(timer);
+        }
+        return nextFrame;
+      });
+    }, 115);
+    return () => window.clearInterval(timer);
+  }, []);
+  const handleHeroPointerMove = (event: PointerEvent<HTMLElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2;
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2;
+    event.currentTarget.style.setProperty("--hero-x", x.toFixed(3));
+    event.currentTarget.style.setProperty("--hero-y", y.toFixed(3));
+  };
 
   return (
     <>
       <span className="cross cross--tr" aria-hidden />
       <span className="cross cross--bl" aria-hidden />
 
-      <section className="hero editorial-section" id="hero">
+      <section className="hero editorial-section" id="hero" onPointerMove={handleHeroPointerMove}>
         <motion.div className="hero__copy" initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.75, ease: "easeOut" }}>
           <p className="eyebrow"><span /> AI writing x investing x build in public</p>
-          <h1 className="hero__wordmark">shouka</h1>
+          <h1 className="hero__wordmark">Shouka</h1>
           <p className="hero__slogan">把技术、理财和随笔写成一条可追踪的个人知识流。</p>
           <div className="hero__actions">
             <a className="btn btn--primary" href="#writing">查看内容</a>
@@ -49,16 +85,16 @@ export function HomeContent({ posts }: { posts: PostMeta[] }) {
           </div>
         </motion.div>
 
-        <motion.aside className="hero__panel" initial={{ opacity: 0, y: 28 }} animate={{ opacity: 1, y: 0 }}
+        <motion.aside className="hero__visual" initial={{ opacity: 0, x: 36 }} animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.75, delay: 0.12, ease: "easeOut" }}>
-          <div className="author-mark">
-            <img src="/avatar/shouka-avatar.png" alt="Shouka creator avatar" />
-            <div>
-              <span>SHOUKA</span>
-              <p>AI systems, writing, and long-term notes.</p>
-            </div>
+          <div className="hero-portrait" aria-label="Shouka creator avatar">
+            <img
+              className="hero-portrait__base"
+              src={`/avatar/refresh/frame-${String(portraitFrame).padStart(2, "0")}.png`}
+              alt="Shouka creator avatar refreshing into view"
+            />
           </div>
-          <div className="profile-card">
+          <div className="hero-brief">
             <p className="profile-card__label">LATEST SIGNAL</p>
             <Link to={`/post/${latest.slug}`} className="profile-card__title">{latest.title}</Link>
             <p>{latest.summary}</p>

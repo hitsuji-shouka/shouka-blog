@@ -37,7 +37,7 @@ function Nav() {
   const selected = loc.hash ? [loc.hash] : [loc.pathname];
   return (
     <header className="site-header">
-      <Link to="/" className="brand">shouka<span>.blog</span></Link>
+      <Link to="/" className="brand">Shouka</Link>
       <nav className="site-menu" aria-label="主导航">
         {items.map((item) => (
           <button
@@ -70,7 +70,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
             </Routes>
           </Suspense>
         </main>
-        <footer className="site-footer">shouka · 融入 agent 的个人博客</footer>
+        <footer className="site-footer">Shouka · 融入 agent 的个人博客</footer>
       </div>
       <Suspense fallback={null}>
         <AssistantPanel />

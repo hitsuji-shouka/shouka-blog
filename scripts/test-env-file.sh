@@ -41,6 +41,15 @@ expect_failure() {
   echo "OK: $name"
 }
 
+file_mode() {
+  local path="$1"
+  if stat -c '%a' "$path" >/dev/null 2>&1; then
+    stat -c '%a' "$path"
+  else
+    stat -f '%Lp' "$path"
+  fi
+}
+
 TMP_DIR="$(mktemp -d)"
 trap 'rm -rf "$TMP_DIR" /tmp/shouka-env-test.out' EXIT
 
@@ -68,7 +77,7 @@ expect_failure "domain with empty label rejected" bash "$ROOT_DIR/scripts/check-
 expect_failure "domain as IP rejected" bash "$ROOT_DIR/scripts/check-env-file.sh" --file "$IP_ENV" --skip-dns
 expect_success "setup-server-env writes a valid env file" bash -c "bash '$ROOT_DIR/scripts/setup-server-env.sh' --domain shouka.blog --path '$SETUP_DIR' >/dev/null && bash '$ROOT_DIR/scripts/check-env-file.sh' --file '$SETUP_DIR/.env' --skip-dns"
 expect_success "setup-server-env writes a valid output file" bash -c "bash '$ROOT_DIR/scripts/setup-server-env.sh' --domain shouka.blog --output '$OUTPUT_ENV' >/dev/null && bash '$ROOT_DIR/scripts/check-env-file.sh' --file '$OUTPUT_ENV' --skip-dns"
-if [[ "$(stat -f '%Lp' "$OUTPUT_ENV" 2>/dev/null || stat -c '%a' "$OUTPUT_ENV")" != "600" ]]; then
+if [[ "$(file_mode "$OUTPUT_ENV")" != "600" ]]; then
   fail "setup-server-env output file should be chmod 600"
 fi
 echo "OK: setup-server-env output file is chmod 600"
