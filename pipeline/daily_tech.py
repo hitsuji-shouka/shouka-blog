@@ -13,7 +13,7 @@ TECH_VOICE = "Chinese_radio_reporter_nv1"
 TECH_MIN_ITEMS = 3
 TECH_HOURS = 72
 TECH_RETRIES = 3
-TECH_RETRY_DELAY_SECONDS = 300
+TECH_RETRY_DELAY_SECONDS = 0
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
