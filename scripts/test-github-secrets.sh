@@ -5,7 +5,10 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CHECK_SCRIPT="$ROOT_DIR/scripts/check-github-secrets.sh"
 TMP_DIR="$(mktemp -d)"
 LOG_FILE="$TMP_DIR/gh.log"
+NO_GH_DIR="$TMP_DIR/no-gh"
 trap 'rm -rf "$TMP_DIR"' EXIT
+mkdir -p "$NO_GH_DIR"
+ln -s /bin/cat "$NO_GH_DIR/cat"
 
 cat > "$TMP_DIR/gh" <<'SH'
 #!/usr/bin/env bash
@@ -72,8 +75,8 @@ expect_pass "required GitHub secrets present" run_check_with "$REQUIRED_SECRETS"
 expect_fail "missing DEPLOY_SSH_KEY rejected" run_check_with $'DEPLOY_HOST\nDEPLOY_USER\nDEPLOY_PATH'
 expect_fail "required DEPLOY_ENV rejected when missing" run_check_with "$REQUIRED_SECRETS" --require-deploy-env
 expect_pass "DEPLOY_ENV accepted when explicitly required" run_check_with "$ALL_SECRETS" --require-deploy-env
-expect_fail_output_contains "missing gh explains manual setup path" "scripts/print-github-secrets-commands.sh" env PATH="/bin" /bin/bash "$CHECK_SCRIPT"
-expect_fail_output_contains "missing gh points to GitHub web secrets page" "Settings > Secrets and variables > Actions" env PATH="/bin" /bin/bash "$CHECK_SCRIPT"
+expect_fail_output_contains "missing gh explains manual setup path" "scripts/print-github-secrets-commands.sh" env PATH="$NO_GH_DIR" /bin/bash "$CHECK_SCRIPT"
+expect_fail_output_contains "missing gh points to GitHub web secrets page" "Settings > Secrets and variables > Actions" env PATH="$NO_GH_DIR" /bin/bash "$CHECK_SCRIPT"
 
 grep -Fq "gh secret list --json name --jq .[].name" "$LOG_FILE" || {
   echo "FAIL: gh secret list was not called with JSON name query" >&2
