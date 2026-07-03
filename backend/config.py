@@ -10,6 +10,7 @@ class Settings(BaseSettings):
 
     content_dir: Path = ROOT / "content"
     static_dir: Path = ROOT / "frontend" / "dist"
+    audio_dir: Path = ROOT / "frontend" / "public" / "audio"
 
     deepseek_key: str = ""
     deepseek_base: str = "https://api.deepseek.com"

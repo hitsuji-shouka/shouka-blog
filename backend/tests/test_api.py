@@ -39,6 +39,19 @@ def test_audio_metadata_is_returned():
     assert data["sources"] == ["CNBC", "Reuters"]
 
 
+def test_audio_file_served_from_public_audio(tmp_path, monkeypatch):
+    audio_dir = tmp_path / "audio"
+    audio_dir.mkdir()
+    (audio_dir / "b.mp3").write_bytes(b"ID3mp3")
+    monkeypatch.setattr("main.settings.audio_dir", audio_dir)
+
+    r = client.get("/audio/b.mp3")
+
+    assert r.status_code == 200
+    assert r.content == b"ID3mp3"
+    assert r.headers["content-type"] == "audio/mpeg"
+
+
 def test_missing_returns_404():
     assert client.get("/api/posts/nope").status_code == 404
 
