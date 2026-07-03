@@ -48,12 +48,20 @@ try {
   await page.goto(`${origin}/`, { waitUntil: "domcontentloaded", timeout: 20_000 });
   const hero = await expectVisible(page, ".hero__wordmark", "desktop hero wordmark");
   const heroText = (await hero.textContent())?.trim();
-  if (heroText !== "shouka") fail(`unexpected hero wordmark: ${heroText}`);
-  await expectLoadedImage(page, 'img[alt="Shouka creator avatar"]', "desktop creator avatar");
+  if (heroText !== "Shouka") fail(`unexpected hero wordmark: ${heroText}`);
+  await expectLoadedImage(page, 'img[alt="Shouka creator avatar refreshing into view"]', "desktop creator avatar");
   await expectVisible(page, ".writing-row", "desktop writing list");
   await expectOpaque(page, ".writing-row", "desktop writing row");
   await expectVisible(page, ".tars-fab", "desktop Agent launcher");
-  await page.waitForTimeout(900);
+  await page.waitForFunction(
+    () => document.querySelector(".hero-portrait__base")?.getAttribute("src")?.endsWith("/avatar/refresh/frame-11.png"),
+    null,
+    { timeout: 4_000 },
+  );
+  const desktopAvatarSrc = await page.locator(".hero-portrait__base").first().getAttribute("src");
+  if (!desktopAvatarSrc?.endsWith("/avatar/refresh/frame-11.png")) {
+    fail(`desktop avatar refresh ended on unexpected frame: ${desktopAvatarSrc}`);
+  }
   await saveScreenshot(page, "desktop-home.png");
 
   await page.getByRole("button", { name: "ABOUT" }).click();
@@ -64,7 +72,7 @@ try {
   await page.goto(`${origin}/`, { waitUntil: "domcontentloaded", timeout: 20_000 });
   await expectVisible(page, ".brand", "mobile brand");
   await expectVisible(page, ".hero__wordmark", "mobile hero wordmark");
-  await expectLoadedImage(page, 'img[alt="Shouka creator avatar"]', "mobile creator avatar");
+  await expectLoadedImage(page, 'img[alt="Shouka creator avatar refreshing into view"]', "mobile creator avatar");
   await page.waitForTimeout(900);
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   if (overflow > 1) fail(`mobile viewport has ${overflow}px horizontal overflow`);
