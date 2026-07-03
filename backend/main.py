@@ -173,6 +173,20 @@ def feed_xml() -> Response:
     ])
     return Response(content=body, media_type="application/rss+xml")
 
+
+@app.api_route("/audio/{audio_path:path}", methods=["GET", "HEAD"])
+def audio(audio_path: str) -> FileResponse:
+    for root in (settings.audio_dir, settings.static_dir / "audio"):
+        f = root / audio_path
+        try:
+            resolved = f.resolve()
+        except OSError:
+            continue
+        if f.is_file() and (resolved == root.resolve() or root.resolve() in resolved.parents):
+            return FileResponse(resolved, media_type="audio/mpeg")
+    raise HTTPException(status_code=404, detail="audio not found")
+
+
 # 静态托管：dist 内真实文件直接给（assets/bg 等），其余路径回 index.html（SPA fallback）
 if settings.static_dir.is_dir():
     index = settings.static_dir / "index.html"

@@ -13,7 +13,7 @@ def write_input(tmp_path, count=2):
                 "title": f"T{i}",
                 "url": f"https://x/{i}",
                 "text": "Body",
-                "published_at": "2026-06-30T06:00:00+08:00",
+                "published_at": "",
             }
         )
     p = tmp_path / "openclaw.json"
