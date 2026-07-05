@@ -23,6 +23,8 @@ def test_daily_tech_uses_reporter_voice_and_weekend_friendly_window(tmp_path):
         "tech",
         "--mode",
         "news",
+        "--date",
+        "2026-06-28",
         "--with-audio",
         "--publish",
         "--min-items",

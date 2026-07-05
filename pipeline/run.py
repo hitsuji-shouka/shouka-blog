@@ -56,6 +56,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--voice", help="MiniMax TTS voice id, e.g. presenter_female")
     parser.add_argument("--publish", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--date", help="Report date in YYYY-MM-DD")
     parser.add_argument("--min-items", type=int, default=5)
     parser.add_argument("--hours", type=int, default=24)
     return parser.parse_args(argv)
@@ -72,7 +73,7 @@ def run_legacy(topic: str = "finance") -> Path | None:
 
 def run_news(args: argparse.Namespace) -> Path | None:
     cfg = tomllib.loads((Path(__file__).parent / "bloggers.toml").read_text(encoding="utf-8"))[args.topic]
-    d = today()
+    d = date.fromisoformat(args.date) if args.date else today()
     target = report.CONTENT / f"{cfg['prefix']}-{d:%Y%m%d}.md"
     if target.exists() and not args.force:
         logger.info("%s exists, skipped. Use --force to overwrite.", target.name)

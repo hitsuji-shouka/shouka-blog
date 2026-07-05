@@ -89,6 +89,37 @@ def test_tech_news_mode_writes_tech_briefing_tags_and_audio(tmp_path, monkeypatc
     assert (tmp_path / "audio" / "tech-20260627.mp3").read_bytes() == b"mp3"
 
 
+def test_news_mode_can_use_explicit_date(tmp_path, monkeypatch):
+    monkeypatch.setattr(report, "CONTENT", tmp_path / "content")
+    monkeypatch.setattr(run, "AUDIO_DIR", tmp_path / "audio")
+    monkeypatch.setattr(run, "today", lambda: date(2026, 6, 27))
+    monkeypatch.setattr(run, "summarize_news", lambda items, domain: {"article": "正文", "script": "播客稿"})
+
+    def fake_tts(text, path, settings):
+        path.write_bytes(b"mp3")
+        return path
+
+    monkeypatch.setattr(run, "synthesize_to_file", fake_tts)
+
+    out = run.main([
+        "finance",
+        "--mode",
+        "news",
+        "--date",
+        "2026-07-04",
+        "--input",
+        str(write_input(tmp_path)),
+        "--with-audio",
+        "--min-items",
+        "1",
+    ])
+
+    assert out is not None
+    assert out.name == "finance-20260704.md"
+    assert "title: 理财早报 · 07-04" in out.read_text(encoding="utf-8")
+    assert (tmp_path / "audio" / "finance-20260704.mp3").read_bytes() == b"mp3"
+
+
 def test_news_mode_can_override_tts_voice(tmp_path, monkeypatch):
     monkeypatch.setattr(report, "CONTENT", tmp_path / "content")
     monkeypatch.setattr(run, "AUDIO_DIR", tmp_path / "audio")

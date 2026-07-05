@@ -98,6 +98,7 @@ def run_daily_briefing(
         cmd = _build_command(
             topic=topic,
             python=resolve_python(root),
+            run_date=run_date,
             with_audio=with_audio,
             publish=publish,
             force=force,
@@ -134,6 +135,7 @@ def _build_command(
     *,
     topic: str = "finance",
     python: str = PYTHON,
+    run_date: date,
     with_audio: bool,
     publish: bool,
     force: bool,
@@ -142,7 +144,7 @@ def _build_command(
     hours: int | None,
     voice: str | None,
 ) -> list[str]:
-    cmd = [python, "-m", "pipeline.run", topic, "--mode", "news"]
+    cmd = [python, "-m", "pipeline.run", topic, "--mode", "news", "--date", f"{run_date:%Y-%m-%d}"]
     if input_path:
         cmd.extend(["--input", str(input_path)])
     if with_audio:

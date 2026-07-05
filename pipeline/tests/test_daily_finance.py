@@ -38,6 +38,8 @@ def test_daily_finance_runs_publish_command_and_writes_log(tmp_path):
                 "finance",
                 "--mode",
                 "news",
+                "--date",
+                "2026-06-27",
                 "--with-audio",
                 "--publish",
             ],
@@ -75,6 +77,8 @@ def test_daily_briefing_can_run_tech_topic_with_default_voice(tmp_path):
         "tech",
         "--mode",
         "news",
+        "--date",
+        "2026-06-27",
         "--with-audio",
         "--publish",
         "--voice",
@@ -118,7 +122,16 @@ def test_daily_finance_can_disable_audio_and_publish(tmp_path):
     )
 
     assert code == 0
-    assert calls == [[daily_finance.PYTHON, "-m", "pipeline.run", "finance", "--mode", "news"]]
+    assert calls == [[
+        daily_finance.PYTHON,
+        "-m",
+        "pipeline.run",
+        "finance",
+        "--mode",
+        "news",
+        "--date",
+        "2026-06-27",
+    ]]
 
 
 def test_daily_finance_can_override_voice(tmp_path):
