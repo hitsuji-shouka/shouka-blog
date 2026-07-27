@@ -40,10 +40,10 @@ def test_build_messages_injects_context():
     assert "ctx" in msgs[0]["content"] and msgs[1]["content"] == "q"
 
 
-def test_build_messages_injects_tars_personality():
+def test_build_messages_injects_agent_personality():
     req = ChatReq(messages=[Msg(role="user", content="q")], personality={"humor": 72, "honesty": 94})
     msgs = build_messages(req.messages, [], req.personality)
-    assert "TARS" in msgs[0]["content"]
+    assert "Agent" in msgs[0]["content"]
     assert "幽默度 72%" in msgs[0]["content"]
     assert "诚实度 94%" in msgs[0]["content"]
 

@@ -1,83 +1,56 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import { Home } from "./pages/Home";
-import { Post } from "./pages/Post";
-import { Category } from "./pages/Category";
-import { AssistantPanel } from "./components/AssistantPanel";
 import { Background } from "./components/Background";
-import { WarpCanvas, shouldPlayWarp } from "./components/WarpCanvas";
-import { ScrollProgress } from "./components/ScrollProgress";
 import { CATS } from "./lib/cat";
-import { shouldReduceMotion } from "./lib/motion";
 import "./index.css";
 
-function HudNav() {
+const Home = lazy(() => import("./pages/Home").then((module) => ({ default: module.Home })));
+const Post = lazy(() => import("./pages/Post").then((module) => ({ default: module.Post })));
+const Category = lazy(() => import("./pages/Category").then((module) => ({ default: module.Category })));
+const AssistantPanel = lazy(() => import("./components/AssistantPanel").then((module) => ({ default: module.AssistantPanel })));
+
+function Nav() {
   const nav = useNavigate();
   const loc = useLocation();
-  const items = [{ key: "/", label: "首页", code: "HOME" }, ...CATS.map((c) => ({
-    key: `/category/${c}`, label: c, code: c === "科技" ? "TECH" : c === "理财" ? "FIN" : "LOG",
-  }))];
+  const items = [
+    { key: "/", label: "首页" },
+    { key: "#about", label: "ABOUT" },
+    { key: "#writing", label: "WRITING" },
+    { key: "#build", label: "BUILD" },
+    { key: "#contact", label: "CONTACT" },
+    ...CATS.map((c) => ({ key: `/category/${c}`, label: c })),
+  ];
+  function go(key: string) {
+    if (key.startsWith("#")) {
+      if (loc.pathname !== "/") {
+        nav(`/${key}`);
+        setTimeout(() => document.querySelector(key)?.scrollIntoView({ behavior: "smooth" }), 0);
+      } else {
+        document.querySelector(key)?.scrollIntoView({ behavior: "smooth" });
+        history.replaceState(null, "", key);
+      }
+      return;
+    }
+    nav(key);
+  }
+  const selected = loc.hash ? [loc.hash] : [loc.pathname];
   return (
-    <header className="hud-nav">
-      <Link to="/" className="brand">shouka<span>.blog</span></Link>
-      <nav className="hud-menu" aria-label="主导航">
+    <header className="site-header">
+      <Link to="/" className="brand">Shouka</Link>
+      <nav className="site-menu" aria-label="主导航">
         {items.map((item) => (
           <button
+            type="button"
             key={item.key}
-            className={loc.pathname === item.key ? "is-active" : ""}
-            onClick={() => nav(item.key)}
+            className={`site-menu__item ${selected.includes(item.key) ? "site-menu__item--active" : ""}`}
+            onClick={() => go(item.key)}
           >
-            <small>{item.code}</small>
             {item.label}
           </button>
         ))}
       </nav>
-      <span className="hud-status">AGENT ONLINE</span>
     </header>
-  );
-}
-
-function WarpRouter() {
-  const location = useLocation();
-  const [displayLocation, setDisplayLocation] = useState(location);
-  const [warp, setWarp] = useState(false);
-  const [reduceMotion] = useState(() => shouldReduceMotion());
-
-  useEffect(() => {
-    if (shouldPlayWarp(reduceMotion, displayLocation.pathname, location.pathname)) {
-      setWarp(true);
-    } else {
-      setDisplayLocation(location);
-      window.scrollTo(0, 0);
-    }
-  }, [displayLocation.pathname, location, reduceMotion]);
-
-  const handleComplete = useCallback(() => {
-    setDisplayLocation(location);
-    requestAnimationFrame(() => {
-      setWarp(false);
-      window.scrollTo(0, 0);
-    });
-  }, [location]);
-
-  return (
-    <>
-      <WarpCanvas trigger={warp} onComplete={handleComplete} />
-      <div className={warp ? "route-shell is-warping" : "route-shell"}>
-        <HudNav />
-        <main className="site-content">
-          <Routes location={displayLocation}>
-            <Route path="/" element={<Home />} />
-            <Route path="/post/:slug" element={<Post />} />
-            <Route path="/category/:name" element={<Category />} />
-            <Route path="*" element={<p className="empty">404</p>} />
-          </Routes>
-        </main>
-        <footer className="site-footer">shouka · knowledge station · agent enabled</footer>
-      </div>
-      <ScrollProgress />
-    </>
   );
 }
 
@@ -85,8 +58,23 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
       <Background />
-      <WarpRouter />
-      <AssistantPanel />
+      <div className="site">
+        <Nav />
+        <main className="site-content">
+          <Suspense fallback={<p className="empty">正在加载…</p>}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/post/:slug" element={<Post />} />
+              <Route path="/category/:name" element={<Category />} />
+              <Route path="*" element={<p className="empty">404</p>} />
+            </Routes>
+          </Suspense>
+        </main>
+        <footer className="site-footer">Shouka · 融入 agent 的个人博客</footer>
+      </div>
+      <Suspense fallback={null}>
+        <AssistantPanel />
+      </Suspense>
     </BrowserRouter>
   </React.StrictMode>
 );

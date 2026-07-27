@@ -1,21 +1,20 @@
 import { Link } from "react-router-dom";
-import { Headphones, Radio } from "lucide-react";
 import type { PostMeta } from "../lib/types";
+import { CAT_CLASS } from "../lib/cat";
 
 export function PostCard({ post }: { post: PostMeta }) {
   return (
-    <article className="post-card hud-panel">
+    <article className="post-card">
       {post.cover && <img className="post-card__cover" src={post.cover} alt="" loading="lazy" />}
       <div className="post-card__meta">
-        <span className="hud-chip"><Radio size={13} />{post.category}</span>
-        {post.audio && <span className="hud-chip hud-chip--audio"><Headphones size={13} />可听</span>}
-        <time>{post.date}</time>
+        <span className={`tag ${CAT_CLASS[post.category] ?? ""}`}>{post.category}</span>
+        {post.audio && <span className="tag tag--audio">可听</span>}
+        <span>{post.date}</span>
       </div>
-      <h3>
+      <h2 className="post-card__title">
         <Link to={`/post/${post.slug}`}>{post.title}</Link>
-      </h3>
-      {post.summary && <p>{post.summary}</p>}
-      <div className="post-card__line" aria-hidden />
+      </h2>
+      {post.summary && <p className="post-card__summary">{post.summary}</p>}
     </article>
   );
 }
